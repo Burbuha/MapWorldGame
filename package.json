@@ -1,0 +1,12 @@
+{
+  "name": "my-spa",
+  "version": "0.0.1",
+  "description": "SPA with modules",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "browser-sync": "^2.26.7"
+  }
+}
