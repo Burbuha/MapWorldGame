@@ -6,7 +6,7 @@ import RegistrationUser from "./pages/RegistrationUser.js";
 import ErrorPage from "./pages/ErrorPage.js";
 
 import Header from "./components/Header.js";
-import Navbar from "./components/NavBar.js";
+import NavBar from "./components/NavBar.js";
 import Content from "./components/Content.js";
 import Footer from "./components/Footer.js";
 
@@ -234,11 +234,8 @@ const mySPA = (function () {
 /* ------ end app module ----- */
 
 /*** --- init module --- ***/
-document.addEventListener(
-  "DOMContentLoaded",
-  mySPA.init({
-    container: "spa",
-    routes: routes,
-    components: components,
-  })
-);
+mySPA.init({
+  container: "spa",
+  routes: routes,
+  components: components,
+});
