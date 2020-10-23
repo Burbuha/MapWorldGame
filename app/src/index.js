@@ -1,4 +1,5 @@
 import HomePage from "./pages/HomePage.js";
+import GamePage from "./pages/GamePage.js";
 import RulesGame from "./pages/RulesGame.js";
 import RatingUser from "./pages/RatingUser.js";
 import LoginUser from "./pages/LoginUser.js";
@@ -20,6 +21,7 @@ const components = {
 // List of supported routes (from pages.js)
 const routes = {
   main: HomePage,
+  game: GamePage,
   rules: RulesGame,
   rating: RatingUser,
   login: LoginUser,
@@ -142,6 +144,9 @@ const mySPA = (function () {
       if (hashPageName === "main" || hashPageName.length === 0) {
         this.drawMap();
       }
+      if (hashPageName === "game") {
+        this.drawGameMap();
+      }
     };
 
     this.drawMap = function () {
@@ -182,6 +187,135 @@ const mySPA = (function () {
           myModuleView.drawMap(map, drawMap);
         });
       });
+    };
+
+    this.drawGameMap = function () {
+      var width = 900,
+        height = 500,
+        sens = 0.25,
+        focused;
+
+      //Настройки проекции
+
+      var projection = d3.geo
+        .mercator()
+        .scale(140)
+        .translate([width / 2, height / 2]);
+
+      var path = d3.geo.path().projection(projection);
+
+      //SVG контейнер
+
+      var svg = d3
+        .select(".game_map")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      //Adding water
+
+      svg
+        .append("path")
+        .datum({ type: "Sphere" })
+        .attr("class", "water")
+        .attr("d", path);
+
+      var countryTooltip = d3
+          .select(".task")
+          .append("div")
+          .attr("class", "countryTooltip"),
+        countryList = d3
+          .select(".task")
+          .append("select")
+          .attr("name", "countries");
+
+      //читаем данные
+      queue()
+        .defer(d3.json, "data/world-110m.json")
+        .defer(d3.tsv, "data/world-110m-country-names.tsv")
+        .await(ready);
+
+      //Main function
+
+      function ready(error, world, countryData) {
+        var countryById = {},
+          countries = topojson.feature(world, world.objects.countries).features;
+
+        console.log(countries);
+
+        //Добавляем страны в select
+
+        countryData.forEach(function (d) {
+          countryById[d.id] = { name: d.name, capital: d.capital };
+          let option = countryList.append("option");
+          option.text(d.name);
+          option.property("value", d.id);
+        });
+
+        //Рисуем страны на глобусе
+
+        var world = svg
+          .selectAll("path.land")
+          .data(countries)
+          .enter()
+          .append("path")
+          .attr("class", "land")
+          .attr("d", path)
+
+          //Обработка событий мыши
+          //задаем стартовые координаты при захвате элемента,
+          //широту и долготу
+
+          //Mouse events
+
+          .on("mouseover", function (d) {
+            console.log(countryById);
+
+            countryTooltip
+              .text(countryById[d.id].name + ": " + countryById[d.id].capital)
+              .style("left", d3.event.pageX + 7 + "px")
+              .style("top", d3.event.pageY - 15 + "px")
+              .style("display", "block")
+              .style("opacity", 1);
+          })
+          .on("mouseout", function (d) {
+            countryTooltip.style("opacity", 0).style("display", "none");
+          })
+          .on("mousemove", function (d) {
+            countryTooltip
+              .style("left", d3.event.pageX + 7 + "px")
+              .style("top", d3.event.pageY - 15 + "px");
+          });
+
+        //Для реализации фокусировки на стране пишем функцию,
+        //которая возвращает нам геоданные для страны по её id
+        function country(cnt, sel) {
+          for (var i = 0, l = cnt.length; i < l; i++) {
+            if (cnt[i].id == sel.value) {
+              return cnt[i];
+            }
+          }
+        }
+
+        //Country focus on option select
+
+        console.log(countryData);
+
+        d3.select("select").on("change", function () {
+          var focusedCountry = country(countries, this);
+          d3.select(".task").append("div").attr("class", "capital");
+          document.querySelector(".capital").innerHTML =
+            "<h3>СТОЛИЦА: " + countryById[focusedCountry.id].capital + "</h3>";
+
+          svg.selectAll(".focused").classed("focused", (focused = false));
+          svg
+            .selectAll("path")
+            .attr("d", path)
+            .classed("focused", function (d, i) {
+              return d.id == focusedCountry.id ? (focused = d) : false;
+            });
+        });
+      }
     };
   }
 

@@ -4,6 +4,7 @@ const NavBar = {
     <nav class="mainmenu ${customClass}" id="mainmenu">
       <ul class="mainmenu_list">
         <li><a class="mainmenu_link" href="#main"><i class="icon-home"></i><span>&nbsp;Главная</span></a></li>
+        <li><a class="mainmenu_link" href="#game"><i class="icon-globe"></i><span>&nbsp;Играть</span></a></li>
         <li><a class="mainmenu_link" href="#rules"><i class="icon-info-circled"></i><span>&nbsp;Правила игры</span></a></li>
         <li><a class="mainmenu_link" href="#rating"><i class="icon-graduation-cap"></i><span>&nbsp;&nbsp;Рейтинг</span></a></li>
         <li><a class="mainmenu_link" href="#login" title="Вход"><i class="icon-user-o"></i><span>&nbsp;Войти</span></a></li>

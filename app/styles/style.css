@@ -77,12 +77,6 @@ body {
   text-decoration: none;
   color: #9496de;
 }
-.my {
-  position: absolute;
-  margin: 0 auto;
-  top: 50px;
-  left: 50px;
-}
 .mainmenu_link.active {
   text-decoration: underline;
 }
@@ -100,7 +94,20 @@ body {
   height: 50px;
   background-color: #e0d8d2;
   font-weight: 700;
+  cursor: pointer;
   box-shadow: 0 0 10px 3px rgba(221, 221, 221, 1);
+}
+.game:hover {
+  background-color: #aaa;
+}
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px #2e3e74;
+}
+.game:active {
+  background-color: #254183;
+  border-color: #333;
+  color: #eee;
 }
 .main-page {
   display: grid;
@@ -146,4 +153,57 @@ blockquote {
 .rules-page_level,
 .rules-page_block {
   width: 50%;
+}
+
+/* Content GamePage */
+.game_container {
+  display: flex;
+  justify-content: space-between;
+}
+.game_map {
+  margin: 10px;
+  width: 70%;
+  height: auto;
+}
+.game_aside {
+  width: 30%;
+}
+
+/* Стили для карт SVG */
+.water {
+  fill: #00248f;
+}
+
+.land {
+  fill: #228b22;
+  stroke: #fff;
+  stroke-width: 0.7px;
+}
+
+.land:hover {
+  fill: #ffa500;
+  stroke-width: 1px;
+}
+
+.focused {
+  fill: #b33434;
+}
+
+select {
+  border: solid #ccc 1px;
+  padding: 3px;
+  box-shadow: inset 1px 1px 2px #ddd8dc;
+}
+
+.countryTooltip {
+  position: absolute;
+  display: none;
+  pointer-events: none;
+  background: #fff;
+  padding: 5px;
+  text-align: left;
+  border: solid #ccc 1px;
+  color: #666;
+  font-size: 14px;
+  font-family: sans-serif;
 }
