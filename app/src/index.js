@@ -87,8 +87,9 @@ const mySPA = (function () {
         .append("canvas")
         .attr("width", map.w)
         .attr("height", map.h);
+
       context = canvas.node().getContext("2d");
-      path = d3.geo.path().projection(projection).context(context);
+      path = d3.geoPath(projection, context);
     };
 
     this.drawGlobe = function (map, drawMap) {
@@ -132,20 +133,25 @@ const mySPA = (function () {
 
     //Game Page
 
-    this.drawSvgAndSelect = function (map, path) {
+    this.drawSvg = function (map, path) {
       //SVG контейнер
       const svg = d3
         .select(".game_map")
         .append("svg")
-        .attr("width", map.width)
-        .attr("height", map.height);
+        .attr("viewBox", `0 0 ${map.width} ${map.height}`)
+        // .attr("width", map.width)
+        // .attr("height", map.height)
+        .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("class", "svg-content");
       //Adding water
       svg
         .append("path")
         .datum({ type: "Sphere" })
         .attr("class", "water")
         .attr("d", path);
+    };
 
+    this.drawSelect = function () {
       d3.select(".task").html(
         `<div class = "countryTooltip"></div>
         <h2>Режим обучения</h2>
@@ -203,11 +209,35 @@ const mySPA = (function () {
         .style("left", tooltip.x + "px")
         .style("top", tooltip.y + "px");
     };
+
+    this.getCapitalInfo = function (capital, status, map, path) {
+      document.querySelector(".thisCapital").innerHTML =
+        "<h4>СТОЛИЦА: " + capital + "</h4>";
+      d3.select("svg").selectAll(".focused").classed("focused", map.focused);
+      d3.select("svg")
+        .selectAll("path")
+        .attr("d", path)
+        .classed("focused", status);
+    };
+
+    this.getCountryInfo = function (country, status, map, path) {
+      document.querySelector(".thisCountry").innerHTML =
+        "<h4>СТРАНА: " + country + "</h4>";
+
+      d3.select("svg").selectAll(".focused").classed("focused", false);
+      d3.select("svg")
+        .selectAll("path")
+        .attr("d", path)
+        .classed("focused", status);
+    };
   }
   /* -------- end view --------- */
   /* ------- begin model ------- */
   function ModuleModel() {
     let myModuleView = null;
+    let self = this;
+    let path = null;
+    //let countryById = {};
 
     this.init = function (view) {
       myModuleView = view;
@@ -222,6 +252,7 @@ const mySPA = (function () {
       }
       if (hashPageName === "game") {
         this.drawGameMap();
+        this.drawSelectMap();
       }
     };
 
@@ -234,21 +265,21 @@ const mySPA = (function () {
         sphere: { type: "Sphere" },
       };
       //настраиваем проекцию
-      const projection = d3.geo
-        .orthographic() //ортографическая проекция
+      const projection = d3
+        .geoOrthographic() //ортографическая проекция
         .scale(map.w / 2.5) //коэффициент масштабирования
         .translate([map.w / 2, map.h / 2]); //центр карты
       //получаем координатную сетку
-      const graticule = d3.geo.graticule();
+      const graticule = d3.geoGraticule();
 
       myModuleView.drawCanvasGlobe(map, projection);
 
-      d3.json("data/world-110m.json", function (error, topo) {
-        if (error) throw error;
+      d3.json("data/world-110m.json").then(function (topo) {
+        console.log(topo);
 
         //конвертируем TopoJSON в GeoJSON
         const land = topojson.feature(topo, topo.objects.land), //контуры материков
-          grid = graticule(); //координатная сетка
+          grid = d3.geoGraticule10(); //координатная сетка
 
         //запускаем requestAnimationFrame
         d3.timer(() => {
@@ -265,36 +296,84 @@ const mySPA = (function () {
       });
     };
 
+    //Для реализации фокусировки на стране пишем функцию,
+    //которая возвращает нам геоданные для страны по её id
+    this.country = function (cnt, sel) {
+      for (var i = 0, l = cnt.length; i < l; i++) {
+        if (cnt[i].id == sel.value || cnt[i].id == sel.value) {
+          return cnt[i];
+        }
+      }
+    };
+
+    this.showTooltip = function (event) {
+      let d = d3.select(this).data()[0];
+      console.log(d);
+
+      var tooltip = {
+        name: countryById[d.id].name,
+        capital: countryById[d.id].capital,
+        x: event.pageX + 7,
+        y: event.pageY - 15,
+      };
+      myModuleView.showTooltip(tooltip);
+    };
+
+    this.hideTooltip = function () {
+      myModuleView.hideTooltip();
+    };
+
+    this.moveTooltip = function (event) {
+      const tooltip = {
+        x: event.pageX + 7,
+        y: event.pageY - 15,
+      };
+      myModuleView.moveTooltip(tooltip);
+    };
+
     this.drawGameMap = function () {
       const map = {
-        width: 900,
-        height: 500,
-        sens: 0.25,
-        focused: null,
+        width: 1000,
+        height: 600,
+        focused: false,
       };
 
       //Настройки проекции
-
-      const projection = d3.geo
-        .mercator()
+      const projection = d3
+        .geoMercator()
         .scale(140)
         .translate([map.width / 2, map.height / 2]);
 
-      const path = d3.geo.path().projection(projection);
+      path = d3.geoPath(projection);
 
-      //рисуем svg и select'ы
-      myModuleView.drawSvgAndSelect(map, path);
+      //рисуем svg
+      myModuleView.drawSvg(map, path);
+      self.getData();
+    };
 
+    this.drawSelectMap = function () {
+      //рисуем select'ы
+      myModuleView.drawSelect();
+    };
+
+    this.getData = function () {
       //читаем данные
-      queue()
-        .defer(d3.json, "data/world-110m.json")
-        .defer(d3.tsv, "data/world-110m-country-names.tsv")
-        .await(ready);
 
-      //Main function
+      var files = [
+        "./data/world-110m.json",
+        "./data/world-110m-country-names.tsv",
+      ];
+      const promises = [];
+      files.forEach(function (url, index) {
+        promises.push(index ? d3.tsv(url) : d3.json(url));
+      });
+      Promise.all(promises).then(ready);
 
-      function ready(error, world, countryData) {
-        var countryById = {},
+      function ready(promises) {
+        let world = promises[0];
+        let countryData = promises[1];
+
+        let countryById = {},
           countries = topojson.feature(world, world.objects.countries).features;
 
         //Добавляем страны и столицы в select
@@ -303,81 +382,55 @@ const mySPA = (function () {
           myModuleView.addInfoSelect(d);
         });
 
-        // //Рисуем страны на глобусе
+        //Рисуем страны на карте
         myModuleView.drawMap(countries, path);
 
         //Обработка событий мыши
         //задаем стартовые координаты при захвате элемента,
-        //широту и долготу
-
-        //Mouse events
+        //широту и долготы
 
         d3.selectAll("path.land")
-          .on("mouseover", function (d) {
+          .on("mouseover", function (event) {
+            let d = d3.select(this).data()[0];
             var tooltip = {
               name: countryById[d.id].name,
               capital: countryById[d.id].capital,
-              x: d3.event.pageX + 7,
-              y: d3.event.pageY - 15,
+              x: event.pageX + 7,
+              y: event.pageY - 15,
             };
             myModuleView.showTooltip(tooltip);
           })
           .on("mouseout", function () {
             myModuleView.hideTooltip();
           })
-          .on("mousemove", function () {
+          .on("mousemove", function (event) {
             const tooltip = {
-              x: d3.event.pageX + 7,
-              y: d3.event.pageY - 15,
+              x: event.pageX + 7,
+              y: event.pageY - 15,
             };
             myModuleView.moveTooltip(tooltip);
           });
 
-        //Для реализации фокусировки на стране пишем функцию,
-        //которая возвращает нам геоданные для страны по её id
-        function country(cnt, sel) {
-          for (var i = 0, l = cnt.length; i < l; i++) {
-            if (cnt[i].id == sel.value || cnt[i].id == sel.value) {
-              return cnt[i];
-            }
-          }
-        }
-
         //Country focus on option select
 
         d3.select("div.countries select").on("change", function () {
-          var focusedCountry = country(countries, this);
-          // myModuleView.getCapitalInfo(focusedCountry);
+          let focusedCountry = self.country(countries, this);
+          console.log(focusedCountry);
 
-          document.querySelector(".thisCapital").innerHTML =
-            "<h4>СТОЛИЦА: " + countryById[focusedCountry.id].capital + "</h4>";
-
-          d3.select("svg")
-            .selectAll(".focused")
-            .classed("focused", (map.focused = false));
-          d3.select("svg")
-            .selectAll("path")
-            .attr("d", path)
-            .classed("focused", function (d, i) {
-              return d.id == focusedCountry.id ? (map.focused = d) : false;
-            });
+          let capital = countryById[focusedCountry.id].capital;
+          let status = function isFocused(d) {
+            return d.id == focusedCountry.id ? (map.focused = d) : false;
+          };
+          myModuleView.getCapitalInfo(capital, status, map, path);
         });
 
         d3.select("div.capitals select").on("change", function () {
-          var focusedCountry = country(countries, this);
-
-          document.querySelector(".thisCountry").innerHTML =
-            "<h4>СТРАНА: " + countryById[focusedCountry.id].name + "</h4>";
-
-          d3.select("svg")
-            .selectAll(".focused")
-            .classed("focused", (map.focused = false));
-          d3.select("svg")
-            .selectAll("path")
-            .attr("d", path)
-            .classed("focused", function (d, i) {
-              return d.id == focusedCountry.id ? (map.focused = d) : false;
-            });
+          var focusedCountry = self.country(countries, this);
+          let country = countryById[focusedCountry.id].name;
+          let status = function isFocused(d) {
+            return d.id == focusedCountry.id ? (map.focused = d) : false;
+          };
+          myModuleView.getCountryInfo(country, status, map, path);
         });
       }
     };
@@ -396,26 +449,32 @@ const mySPA = (function () {
       // вешаем слушателей на событие hashchange и кликам по пунктам меню
       window.addEventListener("hashchange", this.updateState);
 
-      //вешаем слушателей на MouseEvent
-      // d3.selectAll("path.land")
-      //   .on("mouseover", this.showCountryName)
-      //   .on("mouseout", this.hideCountryName)
-      //   .on("mousemove", this.showNextCountryName);
-
       this.updateState(); //первая отрисовка
+
+      //вешаем слушателей на MouseEvent
+      // myModuleContainer.addEventListener("load", this.showTooltip);
+      // myModuleContainer.addEventListener("load", this.hideTooltip);
+      // myModuleContainer.addEventListener("load", this.moveTooltip);
     };
 
     this.updateState = function () {
       myModuleModel.updateState();
     };
-    // this.showCountryName = function (event) {
-    //   myModuleModel.showCountryName(event);
+    // this.showTooltip = function (event) {
+    //   if (d3.selectALL("path.land")) {
+    //     console.log(event);
+    //     myModuleModel.showTooltip(event);
+    //   }
     // };
-    // this.hideCountryName = function (event) {
-    //   myModuleModel.hideCountryName(event);
+    // this.hideTooltip = function (event) {
+    //   if (d3.selectAll("path.land")) {
+    //     myModuleModel.hideTooltip(event);
+    //   }
     // };
-    // this.showNextCountryName = function (event) {
-    //   myModuleModel.showNextCountryName(event);
+    // this.moveTooltip = function (event) {
+    //   if (d3.selectAll("path.land")) {
+    //     myModuleModel.moveTooltip(event);
+    //   }
     // };
   }
   /* ------ end controller ----- */

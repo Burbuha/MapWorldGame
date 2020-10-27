@@ -164,30 +164,47 @@ blockquote {
 .game_container {
   display: flex;
   justify-content: space-between;
+  margin: 3% 0;
 }
 .game_map {
-  margin: 10px;
-  width: 70%;
-  height: auto;
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  /* padding-bottom: 100%; */
+  vertical-align: middle;
+  overflow: hidden;
+}
+.svg-content {
+  /* display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0; */
+  display: inline;
+  width: inherit;
+  min-width: inherit;
+  max-width: inherit;
+  height: inherit;
+  min-height: inherit;
+  max-height: inherit;
 }
 .game_aside {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  width: 30%;
+  width: 50%;
 }
 .task {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: space-between;
 }
 .countries select,
 .capitals select {
-  width: 80%;
+  width: 90%;
 }
 .countries,
 .capitals {
-  height: 200px;
+  height: 150px;
 }
 
 /* Стили для карт SVG */
