@@ -6,10 +6,25 @@ const NavBar = {
         <li><a class="mainmenu_link" href="#main"><i class="icon-home"></i><span>&nbsp;Главная</span></a></li>
         <li><a class="mainmenu_link" href="#game"><i class="icon-globe"></i><span>&nbsp;Играть</span></a></li>
         <li><a class="mainmenu_link" href="#rules"><i class="icon-info-circled"></i><span>&nbsp;Правила игры</span></a></li>
-        <li><a class="mainmenu_link" href="#rating"><i class="icon-graduation-cap"></i><span>&nbsp;&nbsp;Рейтинг</span></a></li>
-        <li><a class="mainmenu_link" href="#login" title="Вход"><i class="icon-user-o"></i><span>&nbsp;Войти</span></a></li>
-        <li><a class="mainmenu_link" href="#registr" title="Регистрация"><i class="icon-login"></i><span>&nbsp;Регистрация</span></a></li>
+        <li><a class="mainmenu_link" href="#rating"><i class="icon-graduation-cap"></i><span>&nbsp;&nbsp;Рейтинг</span></a></li>                             
       </ul>
+      <div id="user-container">
+            <div hidden id="user-pic"></div>
+            <div hidden id="user-name"></div>
+            <button
+              hidden
+              id="sign-out"
+              class="user-button"
+            >
+              <i class="icon-logout icon"></i>
+            </button>
+            <button
+              id="sign-in"
+              class="user-button"
+            >
+              Войти через Google<i class="icon-login icon"></i>
+            </button>
+          </div>   
     </nav>
     `;
   },

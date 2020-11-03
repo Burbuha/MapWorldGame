@@ -1,13 +1,13 @@
 {
   "name": "my-spa",
   "version": "0.0.1",
-  "description": "SPA with modules",
+  "description": "Game World Map",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
     "browser-sync": "^2.26.13",
-    "d3-geo": "^2.0.1"
+    "firebase": "^8.0.0"
   }
 }

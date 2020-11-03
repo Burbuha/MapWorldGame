@@ -1,7 +1,9 @@
 html {
   height: 100%;
 }
-
+* {
+  box-sizing: border-box;
+}
 body {
   margin: 0;
   background-image: url(../img/bgtile.jpg);
@@ -62,7 +64,11 @@ h4 {
 /* NavBar */
 .mainmenu {
   width: 100%;
+  height: 44px;
   background-color: #254183;
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 10px 0 10px -10px #000 inset, -10px 0 10px -10px #000 inset;
 }
 .mainmenu_list {
   display: flex;
@@ -70,8 +76,6 @@ h4 {
   list-style-type: none;
   padding: 0;
   margin: 0;
-  width: 100%;
-  box-shadow: 10px 0 10px -10px #000 inset, -10px 0 10px -10px #000 inset;
 }
 .mainmenu_link {
   display: block;
@@ -87,6 +91,49 @@ h4 {
 }
 .mainmenu_link.active {
   text-decoration: underline;
+}
+/* авторизация */
+#user-container {
+  /* position: absolute; */
+  display: flex;
+  flex-direction: row;
+  top: 22px;
+  right: 0;
+  padding-left: 10px;
+  justify-content: flex-end;
+  padding-right: 10px;
+}
+#user-pic {
+  top: 2px;
+  position: relative;
+  display: inline-block;
+  background-image: url("/images/profile_placeholder.png");
+  background-repeat: no-repeat;
+  width: 40px;
+  height: 40px;
+  background-size: 40px;
+  border-radius: 20px;
+}
+#user-name {
+  font-size: 16px;
+  line-height: 36px;
+  padding-right: 10px;
+  padding-left: 20px;
+  color: #ffffff;
+}
+.user-button {
+  background-color: #254183;
+  border: none;
+  color: #ffffff;
+}
+.user-button:hover {
+  outline: none;
+}
+.icon {
+  font-size: 30px;
+}
+.google-img:before {
+  background: url("../img/fc-webicon-googleplus.svg") no-repeat;
 }
 
 /* Content HomePage */
@@ -215,16 +262,15 @@ blockquote {
 .land {
   fill: #228b22;
   stroke: #fff;
-  stroke-width: 0.7px;
+  stroke-width: 0.3px;
 }
 
 .land:hover {
   fill: #ffa500;
-  stroke-width: 1px;
 }
 
 .focused {
-  fill: #b33434;
+  fill: #ff0000;
 }
 
 select {
@@ -265,7 +311,7 @@ select {
   background: rgba(0, 0, 0, 0.6);
 }
 
-.modal-open {
+.btn {
   margin: 3% auto;
   width: 200px;
   height: 50px;
@@ -274,18 +320,20 @@ select {
   border-radius: 5px;
   padding: 8px 12px;
   font-size: 16px;
+  text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+  cursor: pointer;
   background-color: #254183;
   text-decoration: none;
 }
 
-.modal-open:hover {
+.btn:hover {
   text-decoration: none;
   background-color: #0069d9;
   border-color: #0062cc;
   text-transform: uppercase;
 }
 
-.modal-open:active {
+.btn:active {
   text-decoration: none;
   background-color: #0062cc;
   border-color: #005cbf;
@@ -353,6 +401,181 @@ select {
   text-align: right;
 }
 
+/*игровое поле*/
+.game_play {
+  margin: 20px;
+}
+.game-count {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 100px;
+}
+.timer,
+.counter {
+  width: 47%;
+  height: 50px;
+  border: 1px solid gray;
+  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+  font-size: 18px;
+  line-height: 50px;
+}
+.question,
+.answer {
+  margin-top: 20px;
+  width: 100%;
+  height: 100px;
+  border: 1px solid gray;
+  border-radius: 20px;
+  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+}
+.start,
+.cancel {
+  margin: 5%;
+  width: 40%;
+  height: 40px;
+}
+.cancel {
+  width: 30%;
+  background-color: gray;
+}
+
+/* #login {
+  border-radius: 5px;
+  margin: 50px auto;
+  width: 50%;
+}
+.header {
+  position: relative;
+  margin: 0;
+  padding: 15px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 5px 5px 0 0;
+  text-transform: uppercase;
+  font-weight: light;
+  letter-spacing: 0.1em;
+  text-align: center;
+  color: #fff;
+  background-color: #3f7eb6;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.3);
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.15));
+}
+.header:after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  bottom: 2px;
+  left: 0;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.5);
+}
+#login a {
+  color: #888;
+  text-decoration: none;
+}
+#login a:hover {
+  color: #369;
+}
+#login p {
+  margin: 0;
+}
+#login .social {
+  display: inline-block;
+  height: 20px;
+  margin-left: 7px;
+  padding: 0 2px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+#login .social:before {
+  content: "";
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  vertical-align: top;
+  margin: 0 5px;
+}
+#login .social.gp:before {
+  background: url("../img/fc-webicon-googleplus.svg") no-repeat;
+}
+#login .social:hover {
+  color: #333;
+  background: #eee;
+  box-shadow: 1px 1px 1px #bbb;
+}
+
+#login fieldset {
+  display: block;
+  margin: 0;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-top: 0;
+  border-radius: 0 0 5px 5px;
+  box-shadow: 0 1px 2px #aaa;
+}
+#login input {
+  width: 80%;
+  margin: 0;
+  padding: 12px 10px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 14px;
+}
+#login input:focus {
+  background: #fafafa;
+  box-shadow: inset 0 1px 7px #ddd;
+}
+#login input[type="email"] {
+  border-radius: 3px 3px 0 0;
+}
+#login input[type="password"] {
+  border-width: 0 1px;
+  border-radius: 0;
+}
+#login .form-login input[type="password"] {
+  border-width: 0 1px 1px 1px;
+  border-radius: 0 0 3px 3px;
+}
+#login input[type="text"] {
+  border-radius: 0 0 3px 3px;
+}
+#login input[type="submit"] {
+  font-size: 16px;
+  text-transform: uppercase;
+  margin: 20px;
+}
+.loginSucces {
+  margin: 50px;
+} */
+/* список победитей */
+.rating {
+  width: 80%;
+  margin: 50px auto;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+}
+.table_rating {
+  background: #f5ffff;
+  border-collapse: collapse;
+  text-align: left;
+  margin: auto;
+  width: 100%;
+  border: 5px solid #3f7eb6;
+  border-top: none;
+  box-shadow: inset 2px 2px 5px rgba(154, 147, 140, 0.5),
+    1px 1px 5px rgba(255, 255, 255, 1);
+}
+.table_rating th {
+  box-shadow: inset 0 1px 0 #999999, inset 0 -1px 0 #999999;
+  padding: 10px 15px;
+}
+.table_rating td {
+  padding: 10px 15px;
+}
+.table_price td:nth-child(2n) {
+  background: #e5e5e5;
+}
+
 @media (max-width: 992px) {
   .game_container {
     flex-direction: column-reverse;
@@ -364,5 +587,18 @@ select {
     width: 100%;
     flex-direction: row;
     justify-content: space-between;
+  }
+  #user-container {
+    top: 72px;
+    background-color: rgb(3, 155, 229);
+    height: 38px;
+    padding-top: 3px;
+    padding-right: 2px;
+  }
+  #user-container #user-pic {
+    top: 2px;
+    width: 33px;
+    height: 33px;
+    background-size: 33px;
   }
 }
