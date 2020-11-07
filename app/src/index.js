@@ -75,18 +75,26 @@ const mySPA = (function () {
       }
     };
 
+    this.toggleMenu = function () {
+      const menu = document.querySelector(".mainmenu_list");
+      const menuBtn = document.querySelector(".menu-btn");
+
+      menuBtn.classList.toggle("menu-btn__active");
+      menu.classList.toggle("mainmenu_list__active");
+    };
+
     this.initFirebaseAuth = function (url, userName) {
+      const user = document.getElementById("user");
       const userPicElement = document.getElementById("user-pic");
       const userNameElement = document.getElementById("user-name");
       const signInButtonElement = document.getElementById("sign-in");
       const signOutButtonElement = document.getElementById("sign-out");
 
-      userPicElement.style.backgroundImage = "url(" + url + ")";
+      userPicElement.style.backgroundImage = `url(${url})`;
       userNameElement.textContent = userName;
 
       // Show user's profile and sign-out button.
-      userNameElement.removeAttribute("hidden");
-      userPicElement.removeAttribute("hidden");
+      user.style.display = "flex";
       signOutButtonElement.removeAttribute("hidden");
 
       // Hide sign-in button.
@@ -94,12 +102,10 @@ const mySPA = (function () {
     };
 
     this.outFirebaseAuth = function () {
-      const userPicElement = document.getElementById("user-pic");
-      const userNameElement = document.getElementById("user-name");
+      const user = document.getElementById("user");
       const signInButtonElement = document.getElementById("sign-in");
       const signOutButtonElement = document.getElementById("sign-out");
-      userNameElement.setAttribute("hidden", "true");
-      userPicElement.setAttribute("display", "none");
+      user.style.display = "none";
       signOutButtonElement.setAttribute("hidden", "true");
 
       // Show sign-in button.
@@ -110,17 +116,17 @@ const mySPA = (function () {
 
     this.drawCanvasGlobe = function (map, projection) {
       canvas = d3
-        .select("#map")
+        .select("#globe")
         .append("canvas")
-        .attr("width", map.w)
-        .attr("height", map.h);
+        .attr("width", map.d)
+        .attr("height", map.d);
 
       context = canvas.node().getContext("2d");
       path = d3.geoPath(projection, context);
     };
 
     this.drawGlobe = function (map, drawMap) {
-      context.clearRect(0, 0, map.w, map.h);
+      context.clearRect(0, 0, map.d, map.d);
 
       drawMap.projection
         .rotate([drawMap.rotateAngle, drawMap.rotateX, drawMap.rotateY]) //вращаем глобус
@@ -164,19 +170,32 @@ const mySPA = (function () {
       document
         .querySelector(".container-modal")
         .classList.toggle("modal_closed");
-      document.getElementById("modal").classList.toggle("modal_closed");
-      document.getElementById("modal-overlay").classList.toggle("modal_closed");
+      document.querySelector("#modal").classList.toggle("modal_closed");
+      document.querySelector("#modal-overlay").classList.toggle("modal_closed");
     };
 
-    this.showGame = function () {
+    this.showGame = function (id) {
       document.querySelector(".game_learn").setAttribute("hidden", "true");
       document.querySelector(".game_play").removeAttribute("hidden");
+      // document.querySelector(".game_play").setAttribute("id", id);
+      document.querySelector("#modal-country").disabled = true;
+      document.querySelector("#modal-capital").disabled = true;
     };
 
     this.hideGame = function () {
       document.querySelector(".game_learn").removeAttribute("hidden");
       document.querySelector(".game_play").setAttribute("hidden", "true");
+      // document.querySelector(".game_play").removeAttribute("id");
       document.querySelector(".timer").innerHTML = "";
+      document.querySelector(".question").innerHTML = "";
+      document.querySelector(
+        ".result"
+      ).innerHTML = `Для начала игры нажми "СТАРТ"`;
+      document
+        .querySelectorAll(".level")
+        .forEach((element) => (element.checked = false));
+      document.querySelector("#stop").disabled = true;
+      document.querySelector("#start").removeAttribute("disabled");
     };
 
     this.drawSvg = function (map, path) {
@@ -203,12 +222,16 @@ const mySPA = (function () {
         <div id = "learnTooltip" class = "countryTooltip"></div>
         <div class = "countries">
           <h3>Поиск по стране:</h3>
+          <div class = "select_wrapper">
           <select name = "countries"><option>Выберите страну</option></select>
+          </div>
           <div class = "thisCapital"></div>                  
         </div>
         <div class = "capitals">
           <h3>Поиск по столице:</h3>
+          <div class = "select_wrapper">
           <select name = "capitals"><option>Выберите столицу</option></select>
+          </div>
           <div class = "thisCountry"></div>                  
         </div>`
       );
@@ -224,11 +247,8 @@ const mySPA = (function () {
       optionCapital.property("value", d.id);
     };
 
-    this.sortCapital = function () {
-      let select = document.querySelector("div.capitals select");
-      let items = [...select.querySelectorAll("option")];
-      items.sort((a, b) => (a.text == b.text ? 0 : a.text < b.text ? -1 : 1));
-      items.forEach((item) => select.appendChild(item));
+    this.sortCapital = function (item, select) {
+      select.appendChild(item);
     };
 
     this.drawMap = function (countries, path) {
@@ -280,6 +300,14 @@ const mySPA = (function () {
         .classed("focused", status);
     };
 
+    // this.focusedTrueAnswer = function (focusedCountry) {
+    //   console.log(focusedCountry);
+    //   d3.select("svg")
+    //     .selectAll("path")
+    //     .attr("d", path)
+    //     .classed("focused", focusedCountry);
+    // };
+
     this.addCountryInfo = function (country, status, map, path) {
       document.querySelector(".thisCountry").innerHTML =
         "<h4>СТРАНА: " + country + "</h4>";
@@ -290,16 +318,63 @@ const mySPA = (function () {
         .classed("focused", status);
     };
 
-    this.clearFocus = function (map) {
-      d3.select("svg").selectAll(".focused").classed("focused", map.focused);
+    this.clearFocus = function () {
+      d3.select("svg").selectAll(".focused").classed("focused", false);
     };
 
     this.zoomed = function (transform) {
       d3.select("g").attr("transform", transform);
     };
 
+    this.elementHide = function () {
+      document.querySelector(".header_game").classList.add("element__hide");
+      document.querySelector("footer").classList.add("element__hide");
+    };
+
+    this.elementShow = function () {
+      document.querySelector(".header_game").classList.remove("element__hide");
+      document.querySelector("footer").classList.remove("element__hide");
+    };
+
+    this.isDisabled = function (button) {
+      button.hasAttribute("disabled")
+        ? button.removeAttribute("disabled")
+        : (button.disabled = true);
+    };
+
     this.addTimer = function (strTimer) {
       document.getElementById("timer").innerHTML = strTimer;
+    };
+
+    this.addCounter = function (score) {
+      document.querySelector(".counter").innerHTML = score;
+    };
+
+    this.addResult = function (str) {
+      document.querySelector(".result").innerHTML = str;
+    };
+
+    this.addTaskCountry = function (country) {
+      document.querySelector(".question").innerHTML = country;
+    };
+
+    this.addTaskCapital = function (capital) {
+      document.querySelector(".question").innerHTML = capital;
+    };
+
+    this.printRating = function (usersList) {
+      const usersRating = document.querySelector("#users-list");
+      let rating = "";
+      usersList.forEach((item, i) => {
+        rating += `<div>${i + 1}</div>
+                <div>${item.name}</div>
+                <div class = "user-list__hide-date">${new Date(item.date)}</div>
+                <div class = "user-list__hide-score">${item.score}</div>
+                <div class = "user-list__hide-persent">${
+                  item.percentage
+                }</div>   `;
+      });
+      usersRating.innerHTML = rating;
     };
   }
   /* -------- end view --------- */
@@ -307,15 +382,27 @@ const mySPA = (function () {
   function ModuleModel() {
     let myModuleView = null;
     let self = this;
-    let path = null;
     let hashPageName = null;
+    let path = null;
     let countryById = null;
     let countries = null;
     let countryData = null;
-    let timerId = null;
+
+    const geoGame = {
+      timerId: null,
+      game: null,
+      level: null,
+      random: null,
+      countR: null,
+      countF: null,
+      attempt: 3,
+      mistakes: "",
+    };
 
     this.init = function (view) {
       myModuleView = view;
+
+      this.subscribeUsersbook();
 
       const files = [
         "./data/world-50m.json",
@@ -330,13 +417,13 @@ const mySPA = (function () {
 
       function getData(promises) {
         let world = promises[0];
-        let сountryData2 = promises[1];
-        let сountryById2 = {};
-        let сountries2 = topojson.feature(world, world.objects.countries)
+        let сountryData = promises[1];
+        let сountryById = {};
+        let сountries = topojson.feature(world, world.objects.countries)
           .features;
 
-        сountryData2.forEach(function (d) {
-          сountryById2[d.id] = {
+        сountryData.forEach(function (d) {
+          сountryById[d.id] = {
             id: d.id,
             name: d.name,
             capital: d.capital,
@@ -349,60 +436,60 @@ const mySPA = (function () {
           !localStorage.getItem("countryById") &&
           !localStorage.getItem("countryById")
         ) {
-          localStorage.setItem("countries", JSON.stringify(сountries2));
-          localStorage.setItem("countryById", JSON.stringify(сountryById2));
-          localStorage.setItem("countryData", JSON.stringify(сountryData2));
+          localStorage.setItem("countries", JSON.stringify(сountries));
+          localStorage.setItem("countryById", JSON.stringify(сountryById));
+          localStorage.setItem("countryData", JSON.stringify(сountryData));
         }
       }
-
-      countries = JSON.parse(localStorage.getItem("countries"));
-      countryById = JSON.parse(localStorage.getItem("countryById"));
-      countryData = JSON.parse(localStorage.getItem("countryData"));
     };
 
-    this.updateState = function () {
+    this.updateState = function (containerWidth) {
       hashPageName = window.location.hash.slice(1).toLowerCase();
+      myModuleView.elementHide();
 
       myModuleView.renderContent(hashPageName);
+
       if (hashPageName === "main" || hashPageName.length === 0) {
-        this.drawGlobe();
+        this.drawGlobe(containerWidth);
+        myModuleView.elementShow();
       }
       if (hashPageName === "game") {
-        this.drawSvgMap();
+        this.drawSvgMap(containerWidth);
         this.drawSelectMap();
       }
     };
 
-    this.toggleModal = function () {
-      myModuleView.toggle();
+    this.toggleMenu = function () {
+      myModuleView.toggleMenu();
     };
+
+    //HOME PAGE
+
+    //---Аутентификация через Google
 
     this.signIn = function () {
       var provider = new firebase.auth.GoogleAuthProvider();
       firebase.auth().signInWithPopup(provider);
     };
-
     this.signOut = function () {
       firebase.auth().signOut();
     };
-    // Returns the signed-in user's profile Pic URL.
+    // получаем аватар пользователя
     this.getProfilePicUrl = function () {
       return (
         firebase.auth().currentUser.photoURL ||
         "/images/profile_placeholder.png"
       );
     };
-
-    // Returns the signed-in user's display name.
+    // получаем имя пользователя
     this.getUserName = function () {
       return firebase.auth().currentUser.displayName;
     };
-
+    //проверяем вошел ли пользователь
     this.isUserSignedIn = function () {
       return !!firebase.auth().currentUser;
     };
-
-    // Adds a size to Google Profile pics URLs.
+    // добавляем размер аватара в url
     this.addSizeToGoogleProfilePic = function (url) {
       if (
         url.indexOf("googleusercontent.com") !== -1 &&
@@ -412,8 +499,8 @@ const mySPA = (function () {
       }
       return url;
     };
-
-    this.initFirebaseAuth = function (userPicElement, userNameElement) {
+    //инициализируем аутентификацию и передаем во VIEW имя и аватар
+    this.initFirebaseAuth = function () {
       firebase.auth().onAuthStateChanged(function (user) {
         user = firebase.auth().currentUser;
         if (user) {
@@ -427,10 +514,10 @@ const mySPA = (function () {
       });
     };
 
-    this.drawGlobe = function () {
+    //получаем данные для отрисовки глобуса и передаем во VIEW
+    this.drawGlobe = function (containerWidth) {
       const map = {
-        w: 500,
-        h: 500,
+        d: containerWidth * 0.5,
         speed: 0.01,
         start: Date.now(),
         sphere: { type: "Sphere" },
@@ -438,8 +525,8 @@ const mySPA = (function () {
       //настраиваем проекцию
       const projection = d3
         .geoOrthographic() //ортографическая проекция
-        .scale(map.w / 2.5) //коэффициент масштабирования
-        .translate([map.w / 2, map.h / 2]); //центр карты
+        .scale(map.d / 2.5) //коэффициент масштабирования
+        .translate([map.d / 2, map.d / 2]); //центр карты
 
       myModuleView.drawCanvasGlobe(map, projection);
 
@@ -463,10 +550,19 @@ const mySPA = (function () {
       });
     };
 
-    this.drawSvgMap = function () {
+    //GAME PAGE
+
+    //получаем данные для карты и передаем во VIEW
+    this.drawSvgMap = function (containerWidth) {
+      countries = JSON.parse(localStorage.getItem("countries"));
+      countryById = JSON.parse(localStorage.getItem("countryById"));
+      countryData = JSON.parse(localStorage.getItem("countryData"));
+
+      console.log(containerWidth);
+
       const map = {
-        width: 1100,
-        height: 700,
+        width: containerWidth * 0.6,
+        height: containerWidth * 0.4,
         focused: false,
       };
 
@@ -483,6 +579,7 @@ const mySPA = (function () {
       myModuleView.drawMap(countries, path);
     };
 
+    //получаем данные для селектов и передаем во VIEW
     this.drawSelectMap = function () {
       //рисуем select'ы
       myModuleView.drawSelect();
@@ -496,21 +593,16 @@ const mySPA = (function () {
         };
         myModuleView.addInfoSelect(d);
       });
-      myModuleView.sortCapital();
     };
 
-    //Для реализации фокусировки на стране пишем функцию,
-    //которая возвращает нам геоданные для страны по её id
-    this.country = function (cnt, sel) {
-      for (var i = 0, l = cnt.length; i < l; i++) {
-        if (cnt[i].id == sel.value || cnt[i].id == sel.value) {
-          return cnt[i];
-        }
-      }
+    this.sortCapital = function (items, select) {
+      items.sort((a, b) => (a.text == b.text ? 0 : a.text < b.text ? -1 : 1));
+      items.forEach((item) => myModuleView.sortCapital(item, select));
     };
 
     this.getCapitalInfo = function (event) {
       let focusedCountry = self.country(countries, event.target);
+
       let capital = countryById[focusedCountry.id].capital;
 
       let status = function isFocused(d) {
@@ -529,15 +621,18 @@ const mySPA = (function () {
       myModuleView.addCountryInfo(country, status, map, path);
     };
 
+    //получаем данные для реализации всплывающих подсказок и передаем во VIEW
     this.showTooltip = function (event) {
       let d = d3.select(event.target).data()[0];
-      var tooltip = {
-        name: countryById[d.id].name,
-        capital: countryById[d.id].capital,
-        x: event.pageX + 7,
-        y: event.pageY - 15,
-      };
-      myModuleView.showTooltip(tooltip);
+      if (countryById[d.id]) {
+        var tooltip = {
+          name: countryById[d.id].name,
+          capital: countryById[d.id].capital,
+          x: event.pageX + 7,
+          y: event.pageY - 15,
+        };
+        myModuleView.showTooltip(tooltip);
+      }
     };
 
     this.showGameTooltip = function (event) {
@@ -549,6 +644,7 @@ const mySPA = (function () {
         y: event.pageY - 15,
       };
       myModuleView.showGameTooltip(tooltip);
+      setTimeout(self.hideTooltip, 3000);
     };
 
     this.hideTooltip = function () {
@@ -563,48 +659,58 @@ const mySPA = (function () {
       myModuleView.moveTooltip(tooltip);
     };
 
+    //Функция реализации фокусировки на стране,
+    //которая возвращает нам геоданные для страны по её id
+    this.country = function (cnt, sel) {
+      for (var i = 0, l = cnt.length; i < l; i++) {
+        if (cnt[i].id == sel.value || cnt[i].id == sel.id) {
+          return cnt[i];
+        }
+      }
+    };
+
     this.zoomed = function (event) {
       const { transform } = event;
       myModuleView.zoomed(transform);
+    };
+
+    //GAME
+
+    //модальное окно
+    this.toggleModal = function (btnCountry, btnCapital) {
+      myModuleView.toggle(btnCountry, btnCapital);
     };
 
     this.startGameCapital = function () {
       self.toggleModal();
       myModuleView.clearFocus(false);
       myModuleView.showGame();
-      console.log(countryById);
+      geoGame.game = "capital";
     };
 
     this.startGameCountry = function () {
       self.toggleModal();
       myModuleView.clearFocus(false);
       myModuleView.showGame();
-      console.log(countryById);
-
-      //Получаем рандомно страну и столицу
-      let res = Object.keys(countryById);
-      let randCountry = Math.floor(Math.random() * res.length);
-      console.log(res[randCountry] + " " + countryById[res[randCountry]].name);
-      console.log(
-        res[randCountry] + " " + countryById[res[randCountry]].capital
-      );
-
-      //Получаем объект 100 крупнейших по площади стран
-      let countryById100 = {};
-      for (let key in countryById) {
-        if (countryById[key].area < 100) {
-          countryById100[key] = countryById[key];
-        }
-      }
-      console.log(countryById100);
+      geoGame.game = "country";
     };
 
-    this.startGame = function () {
+    this.getLevel = function (event, btnCountry, btnCapital) {
+      geoGame.level = event.target.value;
+      myModuleView.isDisabled(btnCountry);
+      myModuleView.isDisabled(btnCapital);
+    };
+
+    //игровой процесс
+    this.startGame = function (btnStop, btnStart) {
+      myModuleView.isDisabled(btnStop);
+      myModuleView.isDisabled(btnStart);
+
       //Запускаем секундомер
       let min = 0,
         hour = 0,
         sec = 0;
-      timerId = setTimeout(function tick() {
+      geoGame.timerId = setTimeout(function tick() {
         sec++;
         if (sec >= 60) {
           min++;
@@ -638,13 +744,179 @@ const mySPA = (function () {
           }
         }
         myModuleView.addTimer(strTimer);
-        timerId = setTimeout(tick, 1000); // (*)
+        geoGame.timerId = setTimeout(tick, 1000); // (*)
       }, 1000);
+      myModuleView.addResult("");
+      geoGame.random = self.changeQuestions();
+      geoGame.countF = 0;
+      geoGame.countR = 0;
+      myModuleView.addCounter(`${geoGame.countR}/${geoGame.countF}`);
+    };
+
+    this.stopGame = function (scoreUser, timerUser, btnStop, btnStart) {
+      myModuleView.isDisabled(btnStop);
+      myModuleView.isDisabled(btnStart);
+      clearTimeout(geoGame.timerId);
+      let right = Number(scoreUser.split("/")[0]);
+      let wrong = Number(scoreUser.split("/")[1]);
+      let persent = Math.round((right / (right + wrong)) * 100);
+      let h = Number(timerUser.split(":")[0]);
+      let m = Number(timerUser.split(":")[1]);
+      let s = Number(timerUser.split(":")[2]);
+      let timeSecUser = h * 3600 + m * 60 + s;
+      console.log(timeSecUser);
+      myModuleView.addResult(
+        `Ваш результат: правильных ответов - ${right}; <br>неправильных ответов - ${wrong};  <br>процент угадывания - ${persent}%.<br>Затрачено время - ${timerUser}`
+      );
+      geoGame.mistakes.length > 2
+        ? myModuleView.addTaskCountry(
+            `Надо повторить - <p>${geoGame.mistakes} чтобы запомнить!</p>`
+          ) //НАДО ВЫНЕСТИ В МОДАЛЬНОЕ ОКНО_____________________
+        : myModuleView.addTaskCountry(
+            `Молодец, ты хорошо справился с заданием!`
+          );
+
+      geoGame.mistakes = "";
+      self.writeDataDatabase(right, persent);
+    };
+
+    this.writeDataDatabase = function (right, persent) {
+      myAppDB.collection("users").add({
+        name: firebase.auth().currentUser.displayName,
+        date: Date.now(),
+        score: right,
+        percentage: persent,
+      });
     };
 
     this.cancelGame = function () {
-      clearTimeout(timerId);
+      clearTimeout(geoGame.timerId);
       myModuleView.hideGame();
+      myModuleView.addResult(`Для начала игры нажми "СТАРТ"`);
+    };
+
+    this.mainGame = function (event) {
+      myModuleView.addResult("");
+      let d = d3.select(event.target).data()[0];
+      console.log(d);
+
+      let answUser = countryById[d.id].id; // значение выбранное пользователем
+      if (geoGame.random.id == answUser) {
+        geoGame.countR++;
+        myModuleView.addResult("Mолодец! Это правильный ответ!");
+        myModuleView.addCounter(`${geoGame.countR}/${geoGame.countF}`);
+        geoGame.random = self.changeQuestions();
+      } else {
+        myModuleView.addResult("Неправильно! Попробуй еще раз!");
+        geoGame.attempt--;
+        switch (geoGame.attempt) {
+          case 0:
+            myModuleView.addResult("Увы! Вы исчерпали все попытки!");
+            geoGame.mistakes += `${geoGame.random.name} : ${geoGame.random.capital}, `;
+            console.log(geoGame.mistakes);
+            console.log(
+              `${geoGame.random.name} : ${geoGame.random.capital}<br>`
+            );
+
+            //let focusedCountry = self.country(countries, geoGame.random);
+            //myModuleView.focusedTrueAnswer(focusedCountry);
+            geoGame.countF++;
+            myModuleView.addCounter(`${geoGame.countR}/${geoGame.countF}`);
+            geoGame.random = self.changeQuestions();
+            geoGame.attempt = 3;
+            break;
+          case 1:
+            myModuleView.addResult("Осталась одна попытка");
+            break;
+          case 2:
+            myModuleView.addResult("Осталась две попытки");
+            break;
+          default:
+            break;
+        }
+      }
+    };
+
+    //Функция для получения объекта по уровню сложности
+    this.getObjectLevel = function (Num) {
+      let newCountryById = {};
+      for (let key in countryById) {
+        if (countryById[key].area < Num) {
+          newCountryById[key] = countryById[key];
+        }
+      }
+      return newCountryById;
+    };
+
+    //Функция для получения рандомно страны(столицы)
+    //obj: countryById, countryById70, countryById140
+    this.randomCountry = function (obj) {
+      let res = Object.keys(obj);
+      let randCountry = Math.floor(Math.random() * res.length);
+      return obj[res[randCountry]];
+    };
+
+    this.changeQuestions = function () {
+      let countryLevel;
+
+      //Получаем объект для уровней сложности
+      switch (geoGame.level) {
+        case "easy":
+          countryLevel = self.getObjectLevel(50);
+          break;
+        case "middle":
+          countryLevel = self.getObjectLevel(120);
+          break;
+        case "hard":
+          countryLevel = countryById;
+          break;
+        default:
+          break;
+      }
+      let random = self.randomCountry(countryLevel);
+      switch (geoGame.game) {
+        case "country":
+          myModuleView.addTaskCountry(random.name);
+          break;
+        case "capital":
+          myModuleView.addTaskCapital(random.capital);
+          break;
+        default:
+          break;
+      }
+      return random;
+    };
+
+    //RATING PAGE
+
+    // Listen to usersbook updates
+    this.subscribeUsersbook = function () {
+      // Create query for messages
+      let usersList = [];
+      myAppDB
+        .collection("users")
+        .get()
+        .then(function (querySnapshot) {
+          querySnapshot.forEach(function (doc) {
+            usersList.push(doc.data());
+            usersList.sort((a, b) => (a.score > b.score ? -1 : 1));
+            myModuleView.printRating(usersList);
+          });
+        });
+
+      //   myAppDB
+      //     .collection("users")
+      //     .orderBy("timestamp", "desc")
+      //     .onSnapshot((snaps) => {
+      //       snaps.forEach((doc) => {
+      //         usersList.push(doc.data());
+      //         console.log(
+      //           `${doc.data().name}: ${doc.data().date} \ ${doc.data().score} \ ${
+      //             doc.data().percentage
+      //           }`
+      //         );
+      //       });
+      //     });
     };
   }
 
@@ -661,24 +933,41 @@ const mySPA = (function () {
       // вешаем слушателей на событие hashchange и кликам по пунктам меню
       window.addEventListener("hashchange", this.updateState);
 
-      this.updateState(); //первая отрисовка
+      const containerWidth = document.documentElement.clientWidth;
+      console.log(containerWidth);
+
+      this.updateState(containerWidth); //первая отрисовка
+
+      const menuBtn = document.querySelector(".menu-btn");
+      menuBtn.addEventListener("click", function () {
+        myModuleModel.toggleMenu();
+      });
     };
 
-    this.updateState = function () {
-      myModuleModel.updateState();
-
+    this.updateState = function (containerWidth) {
+      const hashPageName = window.location.hash.slice(1).toLowerCase();
       const signInButtonElement = document.getElementById("sign-in");
       const signOutButtonElement = document.getElementById("sign-out");
       const userPicElement = document.getElementById("user-pic");
       const userNameElement = document.getElementById("user-name");
-      const hashPageName = window.location.hash.slice(1).toLowerCase();
+      containerWidth = document.documentElement.clientWidth;
+
+      myModuleModel.updateState(containerWidth);
+
+      // const globeWidth = document.getElementById("globe").offsetWidth;
+      // const mapWidth = document.getElementById("map").offsetWidth;
+      // const mapHeight = document.getElementById("map").offsetHeight;
 
       myModuleModel.initFirebaseAuth(userPicElement, userNameElement);
       signOutButtonElement.addEventListener("click", myModuleModel.signOut);
       signInButtonElement.addEventListener("click", myModuleModel.signIn);
 
-      if (hashPageName == "game") {
+      if (hashPageName === "game") {
         //селекты
+        const select = document.querySelector("div.capitals select");
+        const items = [...select.querySelectorAll("option")];
+        myModuleModel.sortCapital(items, select);
+
         d3.select("div.countries select").on("change", (event) => {
           event.preventDefault();
           myModuleModel.getCapitalInfo(event);
@@ -689,29 +978,19 @@ const mySPA = (function () {
           myModuleModel.getCountryInfo(event);
         });
 
-        //zoom карты
-        let width = document.querySelector("svg").getBBox().width;
-        let height = document.querySelector("svg").getBBox().height;
-        d3.select("svg").call(
-          d3
-            .zoom()
-            .scaleExtent([1, 20])
-            .translateExtent([
-              [0, 0],
-              [width, height],
-            ])
-            .extent([
-              [0, 0],
-              [width, height],
-            ])
-            .on("zoom", (event) => myModuleModel.zoomed(event))
-        );
-
         //модальное окно
         const btnOpen = document.querySelector("#modal-open");
         const btnClose = document.querySelector("#modal-close");
         const btnCountry = document.querySelector("#modal-country");
         const btnCapital = document.querySelector("#modal-capital");
+        const checkbox = document.querySelectorAll(".level");
+
+        checkbox.forEach((element) => {
+          element.addEventListener("change", (event) => {
+            event.preventDefault();
+            myModuleModel.getLevel(event, btnCountry, btnCapital);
+          });
+        });
 
         btnOpen.addEventListener("click", (event) => {
           event.preventDefault();
@@ -719,7 +998,7 @@ const mySPA = (function () {
         });
         btnClose.addEventListener("click", (event) => {
           event.preventDefault();
-          myModuleModel.toggleModal();
+          myModuleModel.toggleModal(btnCountry, btnCapital);
         });
         btnCountry.addEventListener("click", (event) => {
           event.preventDefault();
@@ -732,17 +1011,29 @@ const mySPA = (function () {
 
         //страт и отмена игры
         const btnStart = document.querySelector("#start");
+        const btnStop = document.querySelector("#stop");
         const btnCancel = document.querySelector("#cancel");
+        const timer = document.querySelector("#timer");
+        const score = document.querySelector(".counter");
 
         btnStart.addEventListener("click", (event) => {
           event.preventDefault();
-          myModuleModel.startGame();
+          myModuleModel.startGame(btnStop, btnStart);
+        });
+        btnStop.addEventListener("click", (event) => {
+          event.preventDefault();
+          let scoreUser = score.textContent;
+          let timerUser = timer.textContent;
+          console.log(scoreUser);
+          console.log(timerUser);
+          myModuleModel.stopGame(scoreUser, timerUser, btnStop, btnStart);
         });
         btnCancel.addEventListener("click", (event) => {
           event.preventDefault();
           myModuleModel.cancelGame();
         });
 
+        //интерактив карты
         d3.selectAll("path.land")
           .on("mouseover", (event) => {
             event.preventDefault();
@@ -760,7 +1051,22 @@ const mySPA = (function () {
         d3.selectAll("path.land").on("click", (event) => {
           event.preventDefault();
           myModuleModel.showGameTooltip(event);
+          myModuleModel.mainGame(event);
         });
+
+        //zoom карты
+        let width = document.querySelector("svg").getBBox().width;
+        let height = document.querySelector("svg").getBBox().height;
+        d3.select("svg").call(
+          d3
+            .zoom()
+            .scaleExtent([1, 20])
+            .translateExtent([
+              [0, 0],
+              [width, height],
+            ])
+            .on("zoom", (event) => myModuleModel.zoomed(event))
+        );
       }
     };
   }

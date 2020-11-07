@@ -8,6 +8,8 @@
   },
   "dependencies": {
     "browser-sync": "^2.26.13",
-    "firebase": "^8.0.0"
+    "d3": "^6.2.0",
+    "firebase": "^8.0.0",
+    "topojson": "^3.0.2"
   }
 }

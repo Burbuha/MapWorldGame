@@ -5,30 +5,16 @@ const RatingUser = {
     return `
       <section class="${className}">
         <div class="rating">
-          <h2 class = "header">Рейтинг игроков</h2>
+          <h2 class = "rating-title">Рейтинг игроков</h2>
             <div class="users-list">
-              <table id="users-list" class="table_rating">
-                  <thead>
-                      <tr>
-                          <th>Рейтинг</th>
-                          <th>Игрок</th>
-                          <th>Очки</th>
-                      </tr>
-                  </thead>                                
-                      <tr>
-                          <td>1</td>
-                          <td>GeoGuru</td>
-                          <td>150</td>
-                      </tr>                                
-                  <thead>
-                      <tr>
-                          <td>2</td>
-                          <td>Egor</td>
-                          <td>130</td>
-                      </tr> 
-                  </thead>
-                  <tbody id="users-list__container"></tbody>
-              </table>
+              <div class="table_rating">                  
+                <div>Место</div>
+                <div>Пользователь</div>
+                <div class = "user-list__hide-date">Дата</div>
+                <div class = "user-list__hide-score">Количество правильных ответов</div>
+                <div class = "user-list__hide-persent">Процент правильных ответов</div>                
+              </div>  
+              <div id="users-list" class="table_rating"></div>               
             </div>
         </div>
       </section>
