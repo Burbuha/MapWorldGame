@@ -20,14 +20,7 @@ h4 {
   font-weight: 600;
   font-style: italic;
 }
-.highlight {
-  background-image: linear-gradient(
-    -100deg,
-    rgba(255, 255, 255, 0),
-    yellow 85%,
-    rgba(255, 255, 255, 0)
-  );
-}
+
 .wrapper {
   margin: 0 auto;
   display: grid;
@@ -35,6 +28,8 @@ h4 {
   width: 100%;
   max-width: 1400px;
   min-height: 100vh;
+  background: url(../img/51554.jpg) no-repeat;
+  background-size: cover;
   background-color: #f4f4f4;
   text-align: center;
 }
@@ -43,9 +38,12 @@ h4 {
 
 .header_game,
 .footer {
-  padding: 10px 20px;
+  padding: 5px;
   background-color: #0c2151;
   color: #ffffff;
+}
+.footer p{
+  margin:5px;
 }
 .header_title {
   margin: 10px;
@@ -134,16 +132,18 @@ footer {
   color: #ffffff;
 }
 .user_button {
+  height: 36px;
   background-color: #254183;
   border: none;
   color: #ffffff;
 }
-.user_button:hover {
+.user_button:hover, .user_button:focus {
   outline: none;
   color: #afafaf;
 }
 .icon {
   font-size: 25px;
+  vertical-align: middle;
 }
 
 /* HOME PAGE */
@@ -151,8 +151,6 @@ footer {
   display: grid;
   grid-template-columns: 3fr 2fr;
   height: 100%;
-  background: url(../img/51554.jpg) no-repeat;
-  background-size: cover;
 }
 .home-aside {
   padding: 10px;
@@ -192,25 +190,25 @@ footer {
   margin: 0 auto;
   padding: 5%;
   text-align: left;
-  /* background-image: url(../img/rules.jpg); */
-  background-repeat: repeat;
 }
 .rules-page_wrapper {
   margin: 0 auto;
-  padding: 40px;
   background-color: #fff;
-  box-shadow: 0 0 0 7px #0c2151, 0 0 0 14px #2e3e74, 0 0 0 21px #9496de;
+  border-radius: 5px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
 }
 
 .rules-page_about {
+  padding: 20px;
   display: flex;
   justify-content: flex-start;
   flex-wrap: wrap;
 }
 .rules-page_level,
 .rules-page_block {
-  width: 50%;
+  width: 45%;
 }
+
 
 /* Content GamePage */
 .game_container {
@@ -221,16 +219,11 @@ footer {
   display: inline-block;
   position: relative;
   width: 100%;
-  height: 80vh;
   padding: 2% 2%;
   vertical-align: middle;
   overflow: hidden;
 }
 .svg-content {
-  /* display: inline-block;
-  position: absolute;
-  top: 0;
-  left: 0; */
   display: inline;
   width: inherit;
   min-width: inherit;
@@ -243,7 +236,7 @@ footer {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 50%;
+  width: 40%;
   height: 100%;
 }
 .task {
@@ -262,11 +255,11 @@ footer {
 
 /* Стили для карт SVG */
 .water {
-  fill: #00248f;
+  fill: #254183;
 }
 
 .land {
-  fill: #228b22;
+  fill: #a98b6f;
   stroke: #fff;
   stroke-width: 0.3px;
 }
@@ -320,7 +313,6 @@ select {
   padding: 20px;
   min-height: 400px;
   font-size: 16px;
-  background-color: #fff;
 }
 
 .modal-overlay {
@@ -368,7 +360,7 @@ button:disabled {
   display: block;
   width: 400px;
   max-width: 100%;
-  height: 450px;
+  min-height: 450px;
   max-height: 100%;
   position: fixed;
   z-index: 100;
@@ -564,6 +556,8 @@ button:disabled {
 .loginSucces {
   margin: 50px;
 } */
+
+
 /* список победитей */
 .rating-title {
   position: relative;
@@ -596,7 +590,7 @@ button:disabled {
 }
 .table_rating {
   display: grid;
-  grid-template-columns: 1fr 2fr 2fr 2fr 2fr;
+  grid-template-columns: 1fr 2fr 2fr 2fr 1fr 1fr;
   grid-template-rows: auto;
   justify-content: center;
   margin: auto;
@@ -632,17 +626,28 @@ button:disabled {
   .mainmenu_link {
     font-size: 14px;
   }
-
   .game_container {
     flex-direction: column;
   }
   .game_aside {
     width: 100%;
   }
+  h2{
+    font-size: 20px;
+  }
+  .btn {
+    height: auto;
+  }
   .countries,
   .capitals {
     width: 100%;
     height: auto;
+  }
+  .question, .result {
+    height: 50px;
+  }
+  .game_play{
+    margin-top: 0;
   }
   .header_title {
     font-size: 35px;
@@ -655,12 +660,15 @@ button:disabled {
     display: none;
   }
   .table_rating {
-    grid-template-columns: 1fr 2fr 2fr 2fr;
+    grid-template-columns: 1fr 2fr 2fr 1fr 1fr;
+    font-size: 14px;    
   }
-
-  footer {
-    height: 100px;
+  .table_rating div{
+    padding: 5px;
   }
+  .footer{
+  font-size: 14px;
+}
 }
 
 @media (max-width: 768px) {
@@ -737,21 +745,44 @@ button:disabled {
     display: none;
   }
   .table_rating {
-    grid-template-columns: 1fr 2fr 2fr;
+    grid-template-columns: 1fr 2fr 2fr 1fr;
+    font-size: 13px;
+  }
+  .game-count {
+    font-size: 14px;
   }
 }
 
 @media (max-width: 576px) {
-  .user-list__hide-score {
+  h3{
+    margin: 10px;
+    font-size: 16px;
+  }
+  .user_button {
+  font-size: 14px;
+}
+  .user-list__hide-level {
     display: none;
   }
   .table_rating {
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 1fr 2fr 2fr;
   }
   .rating-title {
     font-size: 20px;
   }
+  
+  .rules-page_about {
+  display: block;
+}
+.rules-page_level,
+.rules-page_block {
+  width: 100%;
+}
+.footer{
+  font-size: 12px;
+}
 }
 
 @media (max-width: 320px) {
+  
 }
