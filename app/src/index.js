@@ -1,7 +1,8 @@
 import HomePage from "./pages/HomePage.js";
 import GamePage from "./pages/GamePage.js";
 import RulesGame from "./pages/RulesGame.js";
-import RatingUser from "./pages/RatingUser.js";
+import RatingUsers from "./pages/RatingUsers.js";
+import UserAccount from "./pages/UserAccount.js";
 import ErrorPage from "./pages/ErrorPage.js";
 
 import Header from "./components/Header.js";
@@ -21,7 +22,8 @@ const routes = {
   main: HomePage,
   game: GamePage,
   rules: RulesGame,
-  rating: RatingUser,
+  rating: RatingUsers,
+  account: UserAccount,
   error: ErrorPage,
   // default: HomePage,
 };
@@ -173,28 +175,30 @@ const mySPA = (function () {
     this.toggle = function (modal) {
       document
         .querySelector(".container-modal")
-        .classList.toggle("modal_closed");
-      modal.classList.toggle("modal_closed");
-      document.querySelector("#modal-overlay").classList.toggle("modal_closed");
+        .classList.toggle("modal__closed");
+      modal.classList.toggle("modal__closed");
+      document
+        .querySelector("#modal-overlay")
+        .classList.toggle("modal__closed");
     };
 
     this.showGame = function (id) {
-      document.querySelector(".game_learn").setAttribute("hidden", "true");
-      document.querySelector(".game_play").removeAttribute("hidden");
-      // document.querySelector(".game_play").setAttribute("id", id);
+      document.querySelector(".game-learn").setAttribute("hidden", "true");
+      document.querySelector(".game-play").removeAttribute("hidden");
+      // document.querySelector(".game-play").setAttribute("id", id);
       document.querySelector("#modal-country").disabled = true;
       document.querySelector("#modal-capital").disabled = true;
     };
 
     this.hideGame = function () {
-      document.querySelector(".game_learn").removeAttribute("hidden");
-      document.querySelector(".game_play").setAttribute("hidden", "true");
-      // document.querySelector(".game_play").removeAttribute("id");
+      document.querySelector(".game-learn").removeAttribute("hidden");
+      document.querySelector(".game-play").setAttribute("hidden", "true");
+      // document.querySelector(".game-play").removeAttribute("id");
       document.querySelector(".timer").innerHTML = "";
       document.querySelector(".question").innerHTML = "";
       document.querySelector(
         ".result"
-      ).innerHTML = `Для начала игры нажми "СТАРТ"`;
+      ).innerHTML = `Для начала игры нажми "СТАРТ", для&nbsp;остановки игры&nbsp;- "СТОП", для&nbsp;отмены&nbsp;- "ВЫЙТИ".`;
       document
         .querySelectorAll(".level")
         .forEach((element) => (element.checked = false));
@@ -205,7 +209,7 @@ const mySPA = (function () {
     this.drawSvg = function (map, path) {
       //SVG контейнер
       const svg = d3
-        .select(".game_map")
+        .select(".game-map")
         .append("svg")
         .attr("viewBox", `0 0 ${map.width} ${map.height}`)
         .attr("preserveAspectRatio", "xMinYMin meet")
@@ -304,14 +308,6 @@ const mySPA = (function () {
         .classed("focused", status);
     };
 
-    // this.focusedTrueAnswer = function (focusedCountry) {
-    //   console.log(focusedCountry);
-    //   d3.select("svg")
-    //     .selectAll("path")
-    //     .attr("d", path)
-    //     .classed("focused", focusedCountry);
-    // };
-
     this.addCountryInfo = function (country, status, map, path) {
       document.querySelector(".thisCountry").innerHTML =
         "<h4>СТРАНА: " + country + "</h4>";
@@ -378,13 +374,47 @@ const mySPA = (function () {
       usersList.forEach((item, i) => {
         rating += `<div>${i + 1}</div>
                 <div>${item.name}</div>
-                <div class = "user-list__hide-date">${new Date(item.date)}</div>
+                <div class = "user-list__hide-date">${new Date(item.date).toLocaleDateString()}</div>
                 <div class = "user-list__hide-score">${item.score}</div>
                 <div class = "user-list__hide-persent">${item.percentage}</div>
                 <div class = "user-list__hide-level">${item.level}</div>   `;
       });
       usersRating.innerHTML = rating;
     };
+
+    this.addUserAccountInfo = function (userList) {
+      const userAccount = document.querySelector(".user-statistics");
+      let userInfo = `
+              <h3>Здравствуйте, ${userList[0].name}! Ваши достижения:</h3>              
+              <div class="table_account">                  
+                <div>Дата</div>
+                <div>Игра</div>
+                <div class = "user-list__hide-level">Уровень</div> 
+                <div class = "user-list__hide-time">Время игры</div>
+                <div>Количество правильных ответов</div>
+                <div class = "user-list__hide-wrong">Количество неправильных ответов</div>           
+                <div class = "user-list__hide-persent">% отгадывания</div>                               
+              </div>          
+              `;
+      userList.forEach((item) => {
+        userInfo += `<div class = "table_account">
+                <div>${new Date(item.date).toLocaleDateString()}<br>${new Date(item.date).toLocaleTimeString('en-GB')}</div>
+                <div>${item.game}</div>
+                <div class = "user-list__hide-level">${item.level}</div> 
+                <div class = "user-list__hide-time">${item.time}</div>
+                <div>${item.score}</div>
+                <div class = "user-list__hide-wrong">${item.wrong}</div>        
+                <div class = "user-list__hide-persent">${item.percentage}</div>
+              </div>
+             `;
+      });
+      userAccount.innerHTML = userInfo;
+    }
+
+    this.addUserAccountWarn = function () {
+      const userAccount = document.querySelector(".user-statistics");
+      userAccount.innerHTML = "<h2 class = 'warning'>Вы не вошли в свой аккаунт! <br>Авторизируйтесь, пожалуйста!</h2>";
+    }
   }
   /* -------- end view --------- */
   /* ------- begin model ------- */
@@ -452,21 +482,25 @@ const mySPA = (function () {
 
     this.updateState = function (containerWidth) {
       hashPageName = window.location.hash.slice(1).toLowerCase();
-      // myModuleView.elementHide();
 
       myModuleView.renderContent(hashPageName);
 
       if (hashPageName === "main" || hashPageName.length === 0) {
         this.drawGlobe(containerWidth);
-        // myModuleView.elementShow();
       }
+
       if (hashPageName === "game") {
         this.drawSvgMap();
         this.drawSelectMap();
       }
+
       if (hashPageName === "rating") {
         this.subscribeUsersbook("country");
         this.subscribeUsersbook("capital");
+      }
+
+      if (hashPageName === "account") {
+        this.addUserAccountInfo();
       }
     };
 
@@ -678,6 +712,17 @@ const mySPA = (function () {
       myModuleView.moveTooltip(tooltip);
     };
 
+    //Музыкальные эффекты
+    this.soundInit = function (clickAudio) {
+      clickAudio.load();
+    }
+    this.soundOn = function (clickAudio) {
+      clickAudio.play();
+    };
+    this.soundOff = function (clickAudio) {
+      clickAudio.pause();
+    };
+
     //Функция реализации фокусировки на стране,
     //которая возвращает нам геоданные для страны по её id
     this.country = function (cnt, sel) {
@@ -771,7 +816,7 @@ const mySPA = (function () {
           }
         }
         myModuleView.addTimer(strTimer);
-        geoGame.timerId = setTimeout(tick, 1000); 
+        geoGame.timerId = setTimeout(tick, 1000);
       }, 1000);
       myModuleView.addResult("");
       geoGame.random = self.changeQuestions();
@@ -787,75 +832,87 @@ const mySPA = (function () {
       let right = Number(scoreUser.split("/")[0]);
       let wrong = Number(scoreUser.split("/")[1]);
       let persent = Math.round((right / (right + wrong)) * 100);
-      // let h = Number(timerUser.split(":")[0]);
-      // let m = Number(timerUser.split(":")[1]);
-      // let s = Number(timerUser.split(":")[2]);
-      // let timeSecUser = h * 3600 + m * 60 + s;
-      // console.log(timeSecUser);
-      geoGame.mistakes.length > 1
+      geoGame.mistakes.length > 1 || right < 1
         ? myModuleView.addModalResult(
-            `<p>правильных ответов - ${right}; <br>неправильных ответов - ${wrong};  <br>процент угадывания - ${persent}%.<br>Время игры - ${timerUser}</p><h4>Надо повторить:</h4>${geoGame.mistakes}</p>`
-          )
+          `<p>правильных ответов - ${right}; <br>неправильных ответов - ${wrong};  <br>процент угадывания - ${persent}%.<br>Время игры - ${timerUser}</p><h4>Надо повторить!</h4>${geoGame.mistakes}</p>`
+        )
         : myModuleView.addModalResult(
-            `<p>правильных ответов - ${right}; <br>неправильных ответов - ${wrong};  <br>процент угадывания - ${persent}%.<br>Время игры - ${timerUser}</p><h4>Молодец, ты хорошо справился с заданием!</h4></p>`
-          );
-
+          `<p>правильных ответов - ${right}; <br>неправильных ответов - ${wrong};  <br>процент угадывания - ${persent}%.<br>Время игры - ${timerUser}</p><h4>Молодец, ты хорошо справился с заданием!</h4></p>`
+        );
       geoGame.mistakes = "";
-      self.writeDataDatabase(right, persent, geoGame.level, geoGame.game);
+
+      let userResult = {
+        right: right,
+        wrong: wrong,
+        persent: persent,
+        timerUser: timerUser
+      }
+      self.writeDataDatabase(userResult, geoGame);
     };
 
-    this.writeDataDatabase = function (right, persent, level, game) {
-      if (firebase.auth().currentUser && right) {
-        myAppDB.collection(game).add({
-          name: firebase.auth().currentUser.displayName,
-          date: Date.now(),
-          score: right,
-          percentage: persent,
-          level: level,
-        });
-      }
+    this.writeDataDatabase = function (userResult, geoGame) {
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user && userResult.right) {
+          myAppDB.collection(geoGame.game).add({
+            name: firebase.auth().currentUser.displayName,
+            date: Date.now(),
+            level: geoGame.level,
+            game: geoGame.game,
+            score: userResult.right,
+            wrong: userResult.wrong,
+            percentage: userResult.persent,            
+            time: userResult.timerUser
+          });
+        }
+      })
     };
 
     this.cancelGame = function () {
       clearTimeout(geoGame.timerId);
       myModuleView.hideGame();
-      myModuleView.addResult(`Для начала игры нажми "СТАРТ"`);
+      myModuleView.addResult(
+        `Для начала игры нажми "СТАРТ", для&nbsp;остановки игры &nbsp;- "СТОП", для&nbsp;отмены &nbsp;- "ВЫЙТИ".`
+      );
     };
 
     this.mainGame = function (event) {
       myModuleView.addResult("");
       let d = d3.select(event.target).data()[0];
-      console.log(d);
+      let answUser;
+      if (countryById[d.id]) {
+        answUser = countryById[d.id].id;
+      }
+      // значение выбранное пользователем
+      if (geoGame.random && countryById[d.id]) {
+        if (geoGame.random.id === answUser) {
+          geoGame.countR++;
+          myModuleView.addResult("Mолодец! Это правильный ответ!");
+          myModuleView.addCounter(`${geoGame.countR}/${geoGame.countF}`);
+          geoGame.random = self.changeQuestions();
+        } else {
+          myModuleView.addResult("Неправильно! Попробуй еще раз!");
+          geoGame.attempt--;
+          switch (geoGame.attempt) {
+            case 0:
+              myModuleView.addResult("Увы! Вы исчерпали все попытки!");
+              geoGame.mistakes += `<p>${geoGame.random.name} : ${geoGame.random.capital}</p> `;
 
-      let answUser = countryById[d.id].id; // значение выбранное пользователем
-      if (geoGame.random.id === answUser) {
-        geoGame.countR++;
-        myModuleView.addResult("Mолодец! Это правильный ответ!");
-        myModuleView.addCounter(`${geoGame.countR}/${geoGame.countF}`);
-        geoGame.random = self.changeQuestions();
-      } else {
-        myModuleView.addResult("Неправильно! Попробуй еще раз!");
-        geoGame.attempt--;
-        switch (geoGame.attempt) {
-          case 0:
-            myModuleView.addResult("Увы! Вы исчерпали все попытки!");
-            geoGame.mistakes += `<p>${geoGame.random.name} : ${geoGame.random.capital}</p> `;
-
-            //let focusedCountry = self.country(countries, geoGame.random);
-            //myModuleView.focusedTrueAnswer(focusedCountry);
-            geoGame.countF++;
-            myModuleView.addCounter(`${geoGame.countR}/${geoGame.countF}`);
-            geoGame.random = self.changeQuestions();
-            geoGame.attempt = 3;
-            break;
-          case 1:
-            myModuleView.addResult("Осталась одна попытка");
-            break;
-          case 2:
-            myModuleView.addResult("Осталась две попытки");
-            break;
-          default:
-            break;
+              //let focusedCountry = self.country(countries, geoGame.random);
+              //myModuleView.focusedTrueAnswer(focusedCountry);
+              geoGame.countF++;
+              myModuleView.addCounter(`${geoGame.countR}/${geoGame.countF}`);
+              geoGame.random = self.changeQuestions();
+              geoGame.attempt = 3;
+              break;
+            case 1:
+              myModuleView.addResult("Осталась одна попытка");
+              break;
+            case 2:
+              myModuleView.addResult("Осталась две попытки");
+              break;
+            default:
+              break;
+          }
         }
       }
     };
@@ -920,15 +977,14 @@ const mySPA = (function () {
         (snaps) => {
           snaps.forEach((doc) => {
             usersList.push(doc.data());
-            usersList
-              .sort((a, b) =>
-                a.score < b.score ||
+            usersList.sort((a, b) =>
+              a.score < b.score ||
                 (a.score === b.score && a.percentage < b.percentage)
-                  ? 1
-                  : -1
-              )
-              .slice(0, 14);
-            myModuleView.printRating(usersList, game);
+                ? 1
+                : -1
+            );
+            let usersListWinner = usersList.slice(0, 10);
+            myModuleView.printRating(usersListWinner, game);
           });
         },
         function (error) {
@@ -936,6 +992,45 @@ const mySPA = (function () {
         }
       );
     };
+
+    //User Account Page
+
+    this.addUserAccountInfo = function () {
+      let userList = [];
+
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          myAppDB.collection("country").where("name", "==", user.displayName).onSnapshot(
+            (snaps) => {
+              snaps.forEach((doc) => {
+                userList.push(doc.data());                  
+              });
+            },
+            function (error) {
+              console.log(error);
+            }
+          );
+          myAppDB.collection("capital").where("name", "==", user.displayName).onSnapshot(
+            (snaps) => {
+              snaps.forEach((doc) => {
+                userList.push(doc.data());
+                userList.sort((a, b) => b.date - a.date);
+                myModuleView.addUserAccountInfo(userList);                
+              });
+            },
+            function (error) {
+              console.log(error);
+            }
+          );        
+        } else {
+          myModuleView.addUserAccountWarn();
+        }
+      });
+    }
+
+
+
+
   }
 
   /* -------- end model -------- */
@@ -966,8 +1061,18 @@ const mySPA = (function () {
       const userPicElement = document.getElementById("user-pic");
       const userNameElement = document.getElementById("user-name");
 
-      const containerWidth = document.documentElement.clientWidth;
+      let containerWidth = myModuleContainer.clientWidth;
+
       myModuleModel.updateState(containerWidth);
+
+      window.addEventListener(
+        "resize",
+        function () {
+          containerWidth = myModuleContainer.clientWidth;
+          myModuleModel.updateState(containerWidth);
+        },
+        false
+      );
 
       myModuleModel.initFirebaseAuth(userPicElement, userNameElement);
       signOutButtonElement.addEventListener("click", myModuleModel.signOut);
@@ -1005,6 +1110,14 @@ const mySPA = (function () {
         const modal = document.querySelector("#modal");
         const modalResult = document.querySelector("#modalResult");
         const modalAttention = document.querySelector("#modalAttention");
+        const soundOn = document.querySelector("#soundOn");
+        const clickAudio = new Audio("../data/audio.mp3");
+
+        soundOn.addEventListener("change", function () {
+          if (this.checked) {
+            myModuleModel.soundInit(clickAudio);
+          }
+        });
 
         checkbox.forEach((element) => {
           element.addEventListener("change", (event) => {
@@ -1087,6 +1200,7 @@ const mySPA = (function () {
           event.preventDefault();
           myModuleModel.showGameTooltip(event);
           myModuleModel.mainGame(event);
+          soundOn.checked ? myModuleModel.soundOn(clickAudio) : myModuleModel.soundOff(clickAudio);
         });
 
         //zoom карты
@@ -1095,7 +1209,7 @@ const mySPA = (function () {
         d3.select("svg").call(
           d3
             .zoom()
-            .scaleExtent([1, 20])
+            .scaleExtent([1, 50])
             .translateExtent([
               [0, 0],
               [width, height],

@@ -5,12 +5,13 @@ const NavBar = {
       
       <ul class="mainmenu_list">
         <li><a class="mainmenu_link" href="#main"><i class="icon-home"></i><span>&nbsp;Главная</span></a></li>
-        <li><a class="mainmenu_link" href="#game"><i class="icon-globe"></i><span>&nbsp;Играть</span></a></li>
-        <li><a class="mainmenu_link" href="#rules"><i class="icon-info-circled"></i><span>&nbsp;Правила игры</span></a></li>
-        <li><a class="mainmenu_link" href="#rating"><i class="icon-graduation-cap"></i><span>&nbsp;&nbsp;Рейтинг</span></a></li>                             
+        <li><a class="mainmenu_link" href="#game"><i class="icon-globe"></i><span>&nbsp;Игра</span></a></li>
+        <li><a class="mainmenu_link" href="#rules"><i class="icon-info-circled"></i><span>&nbsp;Правила</span></a></li>
+        <li><a class="mainmenu_link" href="#rating"><i class="icon-graduation-cap"></i><span>&nbsp;&nbsp;Рейтинг</span></a></li>
+        <li><a class="mainmenu_link" href="#account"><i class="icon-user-o"></i><span>&nbsp;&nbsp;Личный кабинет</span></a></li>                             
       </ul>
       <div class="menu-btn"></div>
-      <div id="user-container" class = "user_container">
+      <div id="user-container" class = "user-container">
             <div hidden id="user" class = "user">
             <div id="user-pic" class="user_pic"></div>
             <div id="user-name" class="user_name"></div>
