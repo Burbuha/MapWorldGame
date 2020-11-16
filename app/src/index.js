@@ -25,7 +25,6 @@ const routes = {
   rating: RatingUsers,
   account: UserAccount,
   error: ErrorPage,
-  // default: HomePage,
 };
 
 /* ----- spa init module --- */
@@ -193,7 +192,6 @@ const mySPA = (function () {
     this.hideGame = function () {
       document.querySelector(".game-learn").removeAttribute("hidden");
       document.querySelector(".game-play").setAttribute("hidden", "true");
-      // document.querySelector(".game-play").removeAttribute("id");
       document.querySelector(".timer").innerHTML = "";
       document.querySelector(".question").innerHTML = "";
       document.querySelector(
@@ -326,16 +324,6 @@ const mySPA = (function () {
       d3.select("g").attr("transform", transform);
     };
 
-    this.elementHide = function () {
-      document.querySelector(".header_game").classList.add("element__hide");
-      document.querySelector("footer").classList.add("element__hide");
-    };
-
-    this.elementShow = function () {
-      document.querySelector(".header_game").classList.remove("element__hide");
-      document.querySelector("footer").classList.remove("element__hide");
-    };
-
     this.isDisabled = function (button) {
       button.disabled = true;
     };
@@ -368,8 +356,9 @@ const mySPA = (function () {
       document.querySelector(".question").innerHTML = capital;
     };
 
+    //Rating Page
     this.printRating = function (usersList, game) {
-      const usersRating = document.querySelector(`#users-list-${game}`);
+      const usersRating = contentContainer.querySelector(`#users-list-${game}`);
       let rating = "";
       usersList.forEach((item, i) => {
         rating += `<div>${i + 1}</div>
@@ -379,9 +368,12 @@ const mySPA = (function () {
                 <div class = "user-list__hide-persent">${item.percentage}</div>
                 <div class = "user-list__hide-level">${item.level}</div>   `;
       });
-      usersRating.innerHTML = rating;
+      if (usersRating) {
+        usersRating.innerHTML = rating;
+      }      
     };
-
+    
+    //User Account Page
     this.addUserAccountInfo = function (userList) {
       const userAccount = document.querySelector(".user-statistics");
       let userInfo = `
@@ -408,12 +400,14 @@ const mySPA = (function () {
               </div>
              `;
       });
-      userAccount.innerHTML = userInfo;
+      if (userAccount){
+        userAccount.innerHTML = userInfo;
+      }      
     }
 
     this.addUserAccountWarn = function () {
       const userAccount = document.querySelector(".user-statistics");
-      userAccount.innerHTML = "<h2 class = 'warning'>Вы не вошли в свой аккаунт! <br>Авторизируйтесь, пожалуйста!</h2>";
+      userAccount.innerHTML = "<h2 class = 'warning'>Для просмотра информации необходимо авторизоваться!</h2>";
     }
   }
   /* -------- end view --------- */
@@ -523,16 +517,12 @@ const mySPA = (function () {
     this.getProfilePicUrl = function () {
       return (
         firebase.auth().currentUser.photoURL ||
-        "/images/profile_placeholder.png"
+        "./img/profile_placeholder.png"
       );
     };
     // получаем имя пользователя
     this.getUserName = function () {
       return firebase.auth().currentUser.displayName;
-    };
-    //проверяем вошел ли пользователь
-    this.isUserSignedIn = function () {
-      return !!firebase.auth().currentUser;
     };
     // добавляем размер аватара в url
     this.addSizeToGoogleProfilePic = function (url) {
@@ -696,7 +686,6 @@ const mySPA = (function () {
           y: event.pageY - 15,
         };
         myModuleView.showGameTooltip(tooltip);
-        setTimeout(self.hideTooltip, 3000);
       }
     };
 
@@ -712,7 +701,7 @@ const mySPA = (function () {
       myModuleView.moveTooltip(tooltip);
     };
 
-    //Музыкальные эффекты
+    //Добавляем звук на клик
     this.soundInit = function (clickAudio) {
       clickAudio.load();
     }
@@ -752,6 +741,9 @@ const mySPA = (function () {
       geoGame.game = "capital";
       myModuleView.isDisabled(btnCountry);
       myModuleView.isDisabled(btnCapital);
+      myModuleView.addResult(
+        `Для начала игры нажми "СТАРТ", для&nbsp;остановки игры &nbsp;- "СТОП", для&nbsp;отмены &nbsp;- "ВЫЙТИ".`
+      );
     };
 
     this.startGameCountry = function (btnCountry, btnCapital) {
@@ -761,6 +753,9 @@ const mySPA = (function () {
       geoGame.game = "country";
       myModuleView.isDisabled(btnCountry);
       myModuleView.isDisabled(btnCapital);
+      myModuleView.addResult(
+        `Для начала игры нажми "СТАРТ", для&nbsp;остановки игры &nbsp;- "СТОП", для&nbsp;отмены &nbsp;- "ВЫЙТИ".`
+      );
     };
 
     this.getLevel = function (level, btnCountry, btnCapital) {
@@ -896,9 +891,6 @@ const mySPA = (function () {
             case 0:
               myModuleView.addResult("Увы! Вы исчерпали все попытки!");
               geoGame.mistakes += `<p>${geoGame.random.name} : ${geoGame.random.capital}</p> `;
-
-              //let focusedCountry = self.country(countries, geoGame.random);
-              //myModuleView.focusedTrueAnswer(focusedCountry);
               geoGame.countF++;
               myModuleView.addCounter(`${geoGame.countR}/${geoGame.countF}`);
               geoGame.random = self.changeQuestions();
@@ -984,7 +976,10 @@ const mySPA = (function () {
                 : -1
             );
             let usersListWinner = usersList.slice(0, 10);
-            myModuleView.printRating(usersListWinner, game);
+            if (game){
+              myModuleView.printRating(usersListWinner, game);
+            }
+            
           });
         },
         function (error) {
@@ -994,7 +989,6 @@ const mySPA = (function () {
     };
 
     //User Account Page
-
     this.addUserAccountInfo = function () {
       let userList = [];
 
@@ -1027,10 +1021,6 @@ const mySPA = (function () {
         }
       });
     }
-
-
-
-
   }
 
   /* -------- end model -------- */
@@ -1042,29 +1032,20 @@ const mySPA = (function () {
     this.init = function (container, model) {
       myModuleContainer = container;
       myModuleModel = model;
-
-      // вешаем слушателей на событие hashchange и кликам по пунктам меню
-      window.addEventListener("hashchange", this.updateState);
-
-      this.updateState(); //первая отрисовка
-
-      const menuBtn = document.querySelector(".menu-btn");
-      menuBtn.addEventListener("click", function () {
-        myModuleModel.toggleMenu();
-      });
-    };
-
-    this.updateState = function () {
-      const hashPageName = window.location.hash.slice(1).toLowerCase();
+      
       const signInButtonElement = document.getElementById("sign-in");
       const signOutButtonElement = document.getElementById("sign-out");
       const userPicElement = document.getElementById("user-pic");
       const userNameElement = document.getElementById("user-name");
-
+      const menuBtn = document.querySelector(".menu-btn");
       let containerWidth = myModuleContainer.clientWidth;
 
-      myModuleModel.updateState(containerWidth);
-
+      // вешаем слушателей на событие hashchange и кликам по пунктам меню
+      window.addEventListener("hashchange", () => this.updateState(containerWidth));
+      
+      this.updateState(containerWidth); //первая отрисовка 
+      
+      // вешаем слушателей на изменение экрана(поворот)
       window.addEventListener(
         "resize",
         function () {
@@ -1073,13 +1054,24 @@ const mySPA = (function () {
         },
         false
       );
-
+      
+      // вешаем слушателей на кнопки в меню мобильной версии
+      menuBtn.addEventListener("click", function () {
+        myModuleModel.toggleMenu();
+      });
+      
+      // инициализируем firebase и вешаем слушателей на регистрацию пользователя
       myModuleModel.initFirebaseAuth(userPicElement, userNameElement);
       signOutButtonElement.addEventListener("click", myModuleModel.signOut);
       signInButtonElement.addEventListener("click", myModuleModel.signIn);
+    };
+
+    this.updateState = function (containerWidth) {
+      const hashPageName = window.location.hash.slice(1).toLowerCase();      
+      myModuleModel.updateState(containerWidth);      
 
       if (hashPageName === "game") {
-        //селекты
+        //вешаем слушателей на селекты
         const select = document.querySelector("div.capitals select");
         const items = [...select.querySelectorAll("option")];
         myModuleModel.sortCapital(items, select);
@@ -1094,7 +1086,17 @@ const mySPA = (function () {
           myModuleModel.getCountryInfo(event);
         });
 
-        //модальное окно
+        // вешаем слушателя на чекбокс звука клика
+        const soundOn = document.querySelector("#soundOn");
+        const clickAudio = new Audio("./data/audio.mp3");
+
+        soundOn.addEventListener("change", function () {
+          if (this.checked) {
+            myModuleModel.soundInit(clickAudio);
+          }
+        });
+        
+        //вешаем слушателей на кнопки и чекбоксы модальных окон
         const btnOpen = document.querySelector("#modal-open");
         const btnClose = document.querySelector("#modal-close");
         const btnResultClose = document.querySelector("#modalResult-close");
@@ -1110,15 +1112,7 @@ const mySPA = (function () {
         const modal = document.querySelector("#modal");
         const modalResult = document.querySelector("#modalResult");
         const modalAttention = document.querySelector("#modalAttention");
-        const soundOn = document.querySelector("#soundOn");
-        const clickAudio = new Audio("../data/audio.mp3");
-
-        soundOn.addEventListener("change", function () {
-          if (this.checked) {
-            myModuleModel.soundInit(clickAudio);
-          }
-        });
-
+        
         checkbox.forEach((element) => {
           element.addEventListener("change", (event) => {
             event.preventDefault();
@@ -1158,7 +1152,7 @@ const mySPA = (function () {
           myModuleModel.startGameCapital(modal, btnCountry, btnCapital);
         });
 
-        //страт и отмена игры
+        // вешаем  слушателей на кнопки страта, остановки и отмена игры
         const btnStart = document.querySelector("#start");
         const btnStop = document.querySelector("#stop");
         const btnCancel = document.querySelector("#cancel");
@@ -1181,7 +1175,7 @@ const mySPA = (function () {
           myModuleModel.cancelGame();
         });
 
-        //интерактив карты
+        //интерактив карты 
         d3.selectAll("path.land")
           .on("mouseover", (event) => {
             event.preventDefault();
@@ -1196,7 +1190,8 @@ const mySPA = (function () {
             myModuleModel.moveTooltip(event);
           });
 
-        d3.selectAll("path.land").on("click", (event) => {
+        //вешаем слушателей на действия пользователя во время игры
+          d3.selectAll("path.land").on("click", (event) => {
           event.preventDefault();
           myModuleModel.showGameTooltip(event);
           myModuleModel.mainGame(event);

@@ -16,7 +16,6 @@ const UserAccount = {
             </div>
           </div>
         </div>
-        
       </section>
     `;
   },

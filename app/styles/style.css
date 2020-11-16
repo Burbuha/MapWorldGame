@@ -528,7 +528,8 @@ input[type="checkbox"]:checked + label:before {
   padding: 10px 15px;
 }
 .warning {
-  padding: 100px;
+  padding: 13%;
+  line-height: 2em;
 }
 .user-statistics > div {
   padding: 5px 1px;
@@ -547,60 +548,6 @@ input[type="checkbox"]:checked + label:before {
 }
 
 @media (max-width: 992px) {
-  .mainmenu_link {
-    font-size: 14px;
-  }
-  .game-page {
-    flex-direction: column;
-  }
-  .game-aside {
-    width: 100%;
-  }
-  h2 {
-    font-size: 20px;
-  }
-  .btn {
-    height: auto;
-  }
-  .countries,
-  .capitals {
-    width: 100%;
-    height: auto;
-  }
-  .question,
-  .result {
-    height: 50px;
-  }
-  .game-play {
-    margin-top: 0;
-  }
-  .header_title {
-    font-size: 35px;
-  }
-  .user-list__hide-date,
-  .user-list__hide-wrong {
-    display: none;
-  }
-  .table_rating {
-    grid-template-columns: 1fr 2fr 2fr 1fr 1fr;
-    font-size: 14px;
-  }
-  .table_account {
-    grid-template-columns: repeat(6, 1fr);
-    font-size: 14px;
-  }
-  .table_rating div {
-    padding: 5px;
-  }
-  .footer {
-    font-size: 14px;
-  }
-}
-
-@media (max-width: 768px) {
-  .header_game {
-    padding: 0;
-  }
   .menu-btn {
     position: absolute;
     top: 18px;
@@ -667,6 +614,58 @@ input[type="checkbox"]:checked + label:before {
   .mainmenu {
     justify-content: flex-end;
   }
+  .game-page {
+    flex-direction: column;
+  }
+  .game-aside {
+    width: 100%;
+  }
+  h2 {
+    font-size: 20px;
+  }
+  .btn {
+    height: auto;
+  }
+  .countries,
+  .capitals {
+    width: 100%;
+    height: auto;
+  }
+  .question,
+  .result {
+    height: 50px;
+  }
+  .game-play {
+    margin-top: 0;
+  }
+  .header_title {
+    font-size: 35px;
+  }
+  .user-list__hide-date,
+  .user-list__hide-wrong {
+    display: none;
+  }
+  .table_rating {
+    grid-template-columns: 1fr 2fr 2fr 1fr 1fr;
+    font-size: 14px;
+  }
+  .table_account {
+    grid-template-columns: repeat(6, 1fr);
+    font-size: 14px;
+  }
+  .table_rating div {
+    padding: 5px;
+  }
+  .footer {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header_game {
+    padding: 0;
+  }
+
   .user-list__hide-persent {
     display: none;
   }
@@ -679,6 +678,9 @@ input[type="checkbox"]:checked + label:before {
   }
   .game-count {
     font-size: 14px;
+  }
+  .warning {
+    font-size: 18px;
   }
 }
 
@@ -720,5 +722,8 @@ input[type="checkbox"]:checked + label:before {
   .user_pic,
   .user_name {
     display: none;
+  }
+  .warning {
+    font-size: 16px;
   }
 }

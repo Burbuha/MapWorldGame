@@ -1,8 +1,7 @@
 const NavBar = {
   render: (customClass = "") => {
     return `
-    <nav class="mainmenu ${customClass}" id="mainmenu">
-      
+    <nav class="mainmenu ${customClass}" id="mainmenu">      
       <ul class="mainmenu_list">
         <li><a class="mainmenu_link" href="#main"><i class="icon-home"></i><span>&nbsp;Главная</span></a></li>
         <li><a class="mainmenu_link" href="#game"><i class="icon-globe"></i><span>&nbsp;Игра</span></a></li>
@@ -12,24 +11,13 @@ const NavBar = {
       </ul>
       <div class="menu-btn"></div>
       <div id="user-container" class = "user-container">
-            <div hidden id="user" class = "user">
-            <div id="user-pic" class="user_pic"></div>
-            <div id="user-name" class="user_name"></div>
-            </div>
-            <button
-              hidden
-              id="sign-out"
-              class="user_button"
-            >
-              <i class="icon-logout icon"></i>
-            </button>
-            <button
-              id="sign-in"
-              class="user_button"
-            >
-              Войти через Google<i class="icon-login icon"></i>
-            </button>
-          </div>   
+        <div hidden id="user" class = "user">
+          <div id="user-pic" class="user_pic"></div>
+          <div id="user-name" class="user_name"></div>
+        </div>
+        <button hidden id="sign-out" class="user_button"><i class="icon-logout icon"></i></button>
+        <button id="sign-in" class="user_button">Войти через Google<i class="icon-login icon"></i></button>
+      </div>   
     </nav>    
     `;
   },
