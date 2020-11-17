@@ -363,21 +363,23 @@ const mySPA = (function () {
       usersList.forEach((item, i) => {
         rating += `<div>${i + 1}</div>
                 <div>${item.name}</div>
-                <div class = "user-list__hide-date">${new Date(item.date).toLocaleDateString()}</div>
+                <div class = "user-list__hide-date">${new Date(
+                  item.date
+                ).toLocaleDateString()}</div>
                 <div class = "user-list__hide-score">${item.score}</div>
                 <div class = "user-list__hide-persent">${item.percentage}</div>
                 <div class = "user-list__hide-level">${item.level}</div>   `;
       });
       if (usersRating) {
         usersRating.innerHTML = rating;
-      }      
+      }
     };
-    
+
     //User Account Page
-    this.addUserAccountInfo = function (userList) {
+    this.addUserAccountInfo = function (userListLast20) {
       const userAccount = document.querySelector(".user-statistics");
       let userInfo = `
-              <h3>Здравствуйте, ${userList[0].name}! Ваши достижения:</h3>              
+              <h3>Здравствуйте, ${userListLast20[0].name}! Ваши достижения:</h3>              
               <div class="table_account">                  
                 <div>Дата</div>
                 <div>Игра</div>
@@ -388,9 +390,11 @@ const mySPA = (function () {
                 <div class = "user-list__hide-persent">% отгадывания</div>                               
               </div>          
               `;
-      userList.forEach((item) => {
+      userListLast20.forEach((item) => {
         userInfo += `<div class = "table_account">
-                <div>${new Date(item.date).toLocaleDateString()}<br>${new Date(item.date).toLocaleTimeString('en-GB')}</div>
+                <div>${new Date(item.date).toLocaleDateString()}<br>${new Date(
+          item.date
+        ).toLocaleTimeString("en-GB")}</div>
                 <div>${item.game}</div>
                 <div class = "user-list__hide-level">${item.level}</div> 
                 <div class = "user-list__hide-time">${item.time}</div>
@@ -400,15 +404,18 @@ const mySPA = (function () {
               </div>
              `;
       });
-      if (userAccount){
+      if (userAccount) {
         userAccount.innerHTML = userInfo;
-      }      
-    }
+      }
+    };
 
     this.addUserAccountWarn = function () {
       const userAccount = document.querySelector(".user-statistics");
-      userAccount.innerHTML = "<h2 class = 'warning'>Для просмотра информации необходимо авторизоваться!</h2>";
-    }
+      if (userAccount) {
+        userAccount.innerHTML =
+          "<h2 class = 'warning'>Для просмотра информации необходимо авторизоваться!</h2>";
+      }
+    };
   }
   /* -------- end view --------- */
   /* ------- begin model ------- */
@@ -516,8 +523,7 @@ const mySPA = (function () {
     // получаем аватар пользователя
     this.getProfilePicUrl = function () {
       return (
-        firebase.auth().currentUser.photoURL ||
-        "./img/profile_placeholder.png"
+        firebase.auth().currentUser.photoURL || "./img/profile_placeholder.png"
       );
     };
     // получаем имя пользователя
@@ -704,7 +710,7 @@ const mySPA = (function () {
     //Добавляем звук на клик
     this.soundInit = function (clickAudio) {
       clickAudio.load();
-    }
+    };
     this.soundOn = function (clickAudio) {
       clickAudio.play();
     };
@@ -769,9 +775,11 @@ const mySPA = (function () {
       myModuleView.unDisabled(btnStop);
       myModuleView.isDisabled(btnStart);
 
-      if (!firebase.auth().currentUser) {
-        self.toggleModal(modalAttention);
-      }
+      firebase.auth().onAuthStateChanged((user) => {
+        if (!user) {
+          self.toggleModal(modalAttention);
+        }
+      });
 
       //Запускаем секундомер
       let min = 0,
@@ -829,19 +837,19 @@ const mySPA = (function () {
       let persent = Math.round((right / (right + wrong)) * 100);
       geoGame.mistakes.length > 1 || right < 1
         ? myModuleView.addModalResult(
-          `<p>правильных ответов - ${right}; <br>неправильных ответов - ${wrong};  <br>процент угадывания - ${persent}%.<br>Время игры - ${timerUser}</p><h4>Надо повторить!</h4>${geoGame.mistakes}</p>`
-        )
+            `<p>правильных ответов - ${right}; <br>неправильных ответов - ${wrong};  <br>процент угадывания - ${persent}%.<br>Время игры - ${timerUser}</p><h4>Надо повторить!</h4>${geoGame.mistakes}</p>`
+          )
         : myModuleView.addModalResult(
-          `<p>правильных ответов - ${right}; <br>неправильных ответов - ${wrong};  <br>процент угадывания - ${persent}%.<br>Время игры - ${timerUser}</p><h4>Молодец, ты хорошо справился с заданием!</h4></p>`
-        );
+            `<p>правильных ответов - ${right}; <br>неправильных ответов - ${wrong};  <br>процент угадывания - ${persent}%.<br>Время игры - ${timerUser}</p><h4>Молодец, ты хорошо справился с заданием!</h4></p>`
+          );
       geoGame.mistakes = "";
 
       let userResult = {
         right: right,
         wrong: wrong,
         persent: persent,
-        timerUser: timerUser
-      }
+        timerUser: timerUser,
+      };
       self.writeDataDatabase(userResult, geoGame);
     };
 
@@ -849,17 +857,17 @@ const mySPA = (function () {
       firebase.auth().onAuthStateChanged((user) => {
         if (user && userResult.right) {
           myAppDB.collection(geoGame.game).add({
-            name: firebase.auth().currentUser.displayName,
+            name: user.displayName,
             date: Date.now(),
             level: geoGame.level,
             game: geoGame.game,
             score: userResult.right,
             wrong: userResult.wrong,
-            percentage: userResult.persent,            
-            time: userResult.timerUser
+            percentage: userResult.persent,
+            time: userResult.timerUser,
           });
         }
-      })
+      });
     };
 
     this.cancelGame = function () {
@@ -884,6 +892,7 @@ const mySPA = (function () {
           myModuleView.addResult("Mолодец! Это правильный ответ!");
           myModuleView.addCounter(`${geoGame.countR}/${geoGame.countF}`);
           geoGame.random = self.changeQuestions();
+          geoGame.attempt = 3;
         } else {
           myModuleView.addResult("Неправильно! Попробуй еще раз!");
           geoGame.attempt--;
@@ -964,23 +973,23 @@ const mySPA = (function () {
     // Listen to usersbook updates
     this.subscribeUsersbook = function (game) {
       // Create query for messages
-      let usersList = [];
+      let usersList = []; //все игроки
+      let usersListWinner = []; //10 победителей
       myAppDB.collection(game).onSnapshot(
         (snaps) => {
           snaps.forEach((doc) => {
             usersList.push(doc.data());
             usersList.sort((a, b) =>
               a.score < b.score ||
-                (a.score === b.score && a.percentage < b.percentage)
+              (a.score === b.score && a.percentage < b.percentage)
                 ? 1
                 : -1
             );
-            let usersListWinner = usersList.slice(0, 10);
-            if (game){
-              myModuleView.printRating(usersListWinner, game);
-            }
-            
+            usersListWinner = usersList.slice(0, 10);
           });
+          if (game) {
+            myModuleView.printRating(usersListWinner, game);
+          }
         },
         function (error) {
           console.log(error);
@@ -990,37 +999,45 @@ const mySPA = (function () {
 
     //User Account Page
     this.addUserAccountInfo = function () {
-      let userList = [];
+      let userList = []; //все результаты
+      let userListLast20 = []; //последние 20 результатов
 
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
-          myAppDB.collection("country").where("name", "==", user.displayName).onSnapshot(
-            (snaps) => {
-              snaps.forEach((doc) => {
-                userList.push(doc.data());                  
-              });
-            },
-            function (error) {
-              console.log(error);
-            }
-          );
-          myAppDB.collection("capital").where("name", "==", user.displayName).onSnapshot(
-            (snaps) => {
-              snaps.forEach((doc) => {
-                userList.push(doc.data());
-                userList.sort((a, b) => b.date - a.date);
-                myModuleView.addUserAccountInfo(userList);                
-              });
-            },
-            function (error) {
-              console.log(error);
-            }
-          );        
+          myAppDB
+            .collection("country")
+            .where("name", "==", user.displayName)
+            .onSnapshot(
+              (snaps) => {
+                snaps.forEach((doc) => {
+                  userList.push(doc.data());
+                });
+              },
+              function (error) {
+                console.log(error);
+              }
+            );
+          myAppDB
+            .collection("capital")
+            .where("name", "==", user.displayName)
+            .onSnapshot(
+              (snaps) => {
+                snaps.forEach((doc) => {
+                  userList.push(doc.data());
+                  userList.sort((a, b) => b.date - a.date);
+                  userListLast20 = userList.slice(0, 20);
+                });
+                myModuleView.addUserAccountInfo(userListLast20);
+              },
+              function (error) {
+                console.log(error);
+              }
+            );
         } else {
           myModuleView.addUserAccountWarn();
         }
       });
-    }
+    };
   }
 
   /* -------- end model -------- */
@@ -1032,7 +1049,7 @@ const mySPA = (function () {
     this.init = function (container, model) {
       myModuleContainer = container;
       myModuleModel = model;
-      
+
       const signInButtonElement = document.getElementById("sign-in");
       const signOutButtonElement = document.getElementById("sign-out");
       const userPicElement = document.getElementById("user-pic");
@@ -1041,25 +1058,17 @@ const mySPA = (function () {
       let containerWidth = myModuleContainer.clientWidth;
 
       // вешаем слушателей на событие hashchange и кликам по пунктам меню
-      window.addEventListener("hashchange", () => this.updateState(containerWidth));
-      
-      this.updateState(containerWidth); //первая отрисовка 
-      
-      // вешаем слушателей на изменение экрана(поворот)
-      window.addEventListener(
-        "resize",
-        function () {
-          containerWidth = myModuleContainer.clientWidth;
-          myModuleModel.updateState(containerWidth);
-        },
-        false
+      window.addEventListener("hashchange", () =>
+        this.updateState(containerWidth)
       );
-      
+
+      this.updateState(containerWidth); //первая отрисовка
+
       // вешаем слушателей на кнопки в меню мобильной версии
       menuBtn.addEventListener("click", function () {
         myModuleModel.toggleMenu();
       });
-      
+
       // инициализируем firebase и вешаем слушателей на регистрацию пользователя
       myModuleModel.initFirebaseAuth(userPicElement, userNameElement);
       signOutButtonElement.addEventListener("click", myModuleModel.signOut);
@@ -1067,8 +1076,20 @@ const mySPA = (function () {
     };
 
     this.updateState = function (containerWidth) {
-      const hashPageName = window.location.hash.slice(1).toLowerCase();      
-      myModuleModel.updateState(containerWidth);      
+      const hashPageName = window.location.hash.slice(1).toLowerCase();
+      myModuleModel.updateState(containerWidth);
+
+      if (hashPageName === "main") {
+        // вешаем слушателей на изменение экрана(поворот)
+        window.addEventListener(
+          "resize",
+          function () {
+            containerWidth = myModuleContainer.clientWidth;
+            myModuleModel.updateState(containerWidth);
+          },
+          false
+        );
+      }
 
       if (hashPageName === "game") {
         //вешаем слушателей на селекты
@@ -1095,7 +1116,7 @@ const mySPA = (function () {
             myModuleModel.soundInit(clickAudio);
           }
         });
-        
+
         //вешаем слушателей на кнопки и чекбоксы модальных окон
         const btnOpen = document.querySelector("#modal-open");
         const btnClose = document.querySelector("#modal-close");
@@ -1112,7 +1133,7 @@ const mySPA = (function () {
         const modal = document.querySelector("#modal");
         const modalResult = document.querySelector("#modalResult");
         const modalAttention = document.querySelector("#modalAttention");
-        
+
         checkbox.forEach((element) => {
           element.addEventListener("change", (event) => {
             event.preventDefault();
@@ -1175,7 +1196,7 @@ const mySPA = (function () {
           myModuleModel.cancelGame();
         });
 
-        //интерактив карты 
+        //интерактив карты
         d3.selectAll("path.land")
           .on("mouseover", (event) => {
             event.preventDefault();
@@ -1191,11 +1212,13 @@ const mySPA = (function () {
           });
 
         //вешаем слушателей на действия пользователя во время игры
-          d3.selectAll("path.land").on("click", (event) => {
+        d3.selectAll("path.land").on("click", (event) => {
           event.preventDefault();
           myModuleModel.showGameTooltip(event);
           myModuleModel.mainGame(event);
-          soundOn.checked ? myModuleModel.soundOn(clickAudio) : myModuleModel.soundOff(clickAudio);
+          soundOn.checked
+            ? myModuleModel.soundOn(clickAudio)
+            : myModuleModel.soundOff(clickAudio);
         });
 
         //zoom карты
